@@ -1,4 +1,4 @@
-name: Check
+name: make boot
 on: [workflow_dispatch]
 jobs:
   bootimg:
