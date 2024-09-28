@@ -11,6 +11,7 @@
 
 	usb_id: usb-id {
 		compatible = "linux,extcon-usb-gpio";
+		id-gpios = <&tlmm 109 GPIO_ACTIVE_HIGH>;
 		pinctrl-0 = <&usb_id_default>;
 		pinctrl-names = "default";
 	};
@@ -32,10 +33,6 @@
 	gpios = <&tlmm 9 GPIO_ACTIVE_HIGH>;
 };
 
-&usb_id {
-	id-gpios = <&tlmm 109 GPIO_ACTIVE_HIGH>;
-};
-
 &mpss {
 	pinctrl-0 = <&sim_ctrl_default>;
 	pinctrl-names = "default";
@@ -47,7 +44,6 @@
 
 &usb {
 	extcon = <&usb_id>, <&usb_id>;
-	usb-role-switch;
 
 	status = "okay";
 };
@@ -65,10 +61,6 @@
 	pins = "gpio28", "gpio10", "gpio9";
 };
 
-&usb_id_default {
-	pins = "gpio109";
-}
-
 /* This selects the external SIM card slot by default */
 &tlmm {
 	sim_ctrl_default: sim-ctrl-default-state {
@@ -81,6 +73,7 @@
 	};
 
 	usb_id_default: usb-id-default-state {
+		pins = "gpio109";
 		function = "gpio";
 		drive-strength = <8>;
 		bias-pull-up;
