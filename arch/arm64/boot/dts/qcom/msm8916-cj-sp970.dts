@@ -8,6 +8,12 @@
  	model = "SP970v8 4G Modem Stick";
  	compatible = "cj,sp970", "qcom,msm8916", "lk2nd,device";
 	chassis-type = "handset";
+
+	usb_id: usb-id {
+		compatible = "linux,extcon-usb-gpio";
+		pinctrl-0 = <&usb_id_default>;
+		pinctrl-names = "default";
+	};
 };
 
 &button_restart {
@@ -26,9 +32,9 @@
 	gpios = <&tlmm 9 GPIO_ACTIVE_HIGH>;
 };
 
-// &usb_id {
-// 	id-gpios = <&tlmm 109 GPIO_ACTIVE_HIGH>;
-// };
+&usb_id {
+	id-gpios = <&tlmm 109 GPIO_ACTIVE_HIGH>;
+};
 
 &mpss {
 	pinctrl-0 = <&sim_ctrl_default>;
@@ -39,16 +45,16 @@
 	compatible = "qcom,wcn3660b";
 };
 
-// &usb {
-// 	extcon = <&usb_id>;
-// 	usb-role-switch;
+&usb {
+	extcon = <&usb_id>, <&usb_id>;
+	usb-role-switch;
 
-// 	status = "okay";
-// };
+	status = "okay";
+};
 
-// &usb_hs_phy {
-// 	extcon = <&usb_id>;
-// };
+&usb_hs_phy {
+	extcon = <&usb_id>;
+};
 
 &button_default {
 	pins = "gpio107";
@@ -59,9 +65,9 @@
 	pins = "gpio28", "gpio10", "gpio9";
 };
 
-// &usb_id_default {
-// 	pins = "gpio109";
-// }
+&usb_id_default {
+	pins = "gpio109";
+}
 
 /* This selects the external SIM card slot by default */
 &tlmm {
@@ -72,5 +78,11 @@
 			bias-disable;
 			output-high;
 		};
+	};
+
+	usb_id_default: usb-id-default-state {
+		function = "gpio";
+		drive-strength = <8>;
+		bias-pull-up;
 	};
 };
