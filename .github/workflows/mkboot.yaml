@@ -16,7 +16,7 @@ jobs:
 
       - name: Download kernel
         run: |
-          curl -L -o kernel.zip https://github.com/jfrostbite/msm8916-linux/actions/runs/11084009677/artifacts/1990727375
+          curl -L -o kernel.zip https://file.netcut.site/uploads/20240928/82a64fa57f084731d304298853466c22.zip
           unzip kernel.zip -d artifacts
 
       - name: Build
