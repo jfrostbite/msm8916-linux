@@ -1,0 +1,32 @@
+name: Check
+on: [workflow_dispatch]
+jobs:
+  bootimg:
+    name: Make boot images
+    runs-on: ubuntu-latest
+    steps:
+      - name: Prepare
+        run: |
+          sudo apt -y update
+          sudo apt -y install binfmt-support qemu-user-static mkbootimg
+          mkdir artifacts
+
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Download kernel
+        run: |
+          curl -L -o kernel.zip https://github.com/jfrostbite/msm8916-linux/actions/runs/11084009677/artifacts/1990727375
+          unzip kernel.zip -d artifacts
+
+      - name: Build
+        run: |
+          cd .github/scripts
+          chmod +x build_boot_img.sh
+          sudo ./build_boot_img.sh
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: kernel and boot images
+          path: artifacts/*
