@@ -65,17 +65,19 @@ cp rootfs/boot/vmlinuz* ./Image.gz
 cp rootfs/boot/initrd.img* ./initrd.img
 cp rootfs/usr/lib/linux-image*/qcom/*sp970*.dtb ./
 cp rootfs/etc/debian_version ./
+echo "查看"
+cat ./debian_version
 
 cat Image.gz $DTB_FILE > kernel-dtb
 mkbootimg \
     --base 0x80000000 \
-    --kernel_offset 0x00080000 \
-    --ramdisk_offset 0x02000000 \
-    --tags_offset 0x01e00000 \
+    --kernel_offset 0x00008000 \
+    --ramdisk_offset 0x01000000 \
+    --tags_offset 0x00000100 \
     --pagesize 2048 \
     --second_offset 0x00f00000 \
     --ramdisk $RAMDISK_FILE \
-    --cmdline "androidboot.hardware=qcom androidboot.oem.product=HL6180W pmos.debug-shell rw"\
+    --cmdline "androidboot.hardware=qcom androidboot.oem.product=HL6180W user_debug=31 msm_rtb.filter=0x3F ehci-hcd.park=3 androidboot.bootdevice=7824900.sdhci rw"\
     --kernel kernel-dtb -o boot.img
 
 mv boot*.img ../../artifacts/
