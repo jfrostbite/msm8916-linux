@@ -48,7 +48,7 @@ mkbootimg \
     --pagesize 2048 \
     --second_offset 0x00f00000 \
     --ramdisk $RAMDISK_FILE \
-    --cmdline "androidboot.hardware=qcom androidboot.oem.product=HL6180W rw"\
+    --cmdline "androidboot.hardware=qcom androidboot.oem.product=HL6180W pmos.debug-shell rw"\
     --kernel kernel-dtb -o boot.img
 
 mv boot*.img ../../artifacts/
