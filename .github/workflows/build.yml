@@ -50,7 +50,7 @@ jobs:
       - name: Prepare
         run: |
           sudo apt -y update
-          sudo apt -y install binfmt-support qemu-user-static mkbootimg
+          sudo apt -y install binfmt-support qemu-user-static mkbootimg debootstrap android-sdk-libsparse-utils
           mkdir artifacts
 
       - name: Checkout
@@ -73,3 +73,23 @@ jobs:
         with:
           name: kernel and boot images
           path: artifacts/*
+          
+      - name: Generate release tag
+        id: version
+        run: |
+          NAME=$(echo "Debian $(cat debian_version)")
+          TAG_NAME=$(cat debian_version)-${{ github.run_number }}
+          git tag $TAG_NAME
+          git push origin $TAG_NAME
+          echo -e "test build" > release_notes.md
+          echo "NAME=$NAME" >> $GITHUB_OUTPUT
+          echo "TAG_NAME=$TAG_NAME" >> $GITHUB_OUTPUT
+
+      - name: Releases
+        uses: softprops/action-gh-release@v2
+        with:
+          name: ${{ steps.version.outputs.NAME }}
+          body_path: release_notes.md
+          tag_name: ${{ steps.version.outputs.TAG_NAME }}
+          files: |
+            artifacts/*.img
