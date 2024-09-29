@@ -18,9 +18,37 @@ cat <<EOF > rootfs/tmp/chroot.sh
 rm /etc/resolv.conf
 echo "nameserver 8.8.8.8" > /etc/resolv.conf
 
+
+
 apt update
-apt install -y initramfs-tools
+apt install -y initramfs-tools locales network-manager openssh-server systemd-timesyncd fake-hwclock
 apt install -y /tmp/*.deb
+
+sed -i -e "s/# en_US.UTF-8 UTF-8/en_US.UTF-8 UTF-8/" /etc/locale.gen
+dpkg-reconfigure --frontend=noninteractive locales
+update-locale LANG=en_US.UTF-8 LC_ALL=en_US.UTF-8 LANGUAGE=en_US.UTF-8
+echo -n >/etc/resolv.conf
+echo -e "admin\nadmin" | passwd
+echo sp970 > /etc/hostname
+sed -i 's/^.\?PermitRootLogin.*$/PermitRootLogin yes/g' /etc/ssh/sshd_config
+
+cat <<EOI > /etc/apt/sources.list
+deb http://mirrors.huaweicloud.com/debian/ bookworm main contrib non-free non-free-firmware
+# deb-src http://mirrors.huaweicloud.com/debian/ bookworm main contrib non-free non-free-firmware
+
+deb http://mirrors.huaweicloud.com/debian/ bookworm-updates main contrib non-free non-free-firmware
+# deb-src http://mirrors.huaweicloud.com/debian/ bookworm-updates main contrib non-free non-free-firmware
+
+deb http://mirrors.huaweicloud.com/debian/ bookworm-backports main contrib non-free non-free-firmware
+# deb-src http://mirrors.huaweicloud.com/debian/ bookworm-backports main contrib non-free non-free-firmware
+
+deb https://mirrors.huaweicloud.com/debian-security bookworm-security main contrib non-free non-free-firmware
+# deb-src https://mirrors.huaweicloud.com/debian-security bookworm-security main contrib non-free non-free-firmware
+EOI
+
+rm -rf /etc/ssh/ssh_host_* /var/lib/apt/lists
+rm -rf /tmp/* /root/.bash_history > /dev/null 2>&1
+apt clean
 
 exit
 EOF
@@ -52,3 +80,13 @@ mkbootimg \
     --kernel kernel-dtb -o boot.img
 
 mv boot*.img ../../artifacts/
+
+dd if=/dev/zero of=debian-sp970.img bs=1M count=$(( $(du -ms rootfs | cut -f1) + 100 ))
+mkfs.ext4 -L rootfs debian-sp970.img
+mkdir build && mount debian-sp970.img build
+rsync -aH rootfs/ build/
+umount build
+img2simg debian-sp970.img rootfs.img
+rm -rf debian-sp970.img rootfs build > /dev/null 2>&1
+
+mv rootfs.img ../../artifacts/
