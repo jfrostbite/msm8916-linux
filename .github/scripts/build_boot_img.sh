@@ -18,8 +18,6 @@ cat <<EOF > rootfs/tmp/chroot.sh
 rm /etc/resolv.conf
 echo "nameserver 8.8.8.8" > /etc/resolv.conf
 
-
-
 apt update
 apt install -y initramfs-tools locales network-manager openssh-server systemd-timesyncd fake-hwclock
 apt install -y /tmp/*.deb
@@ -66,6 +64,7 @@ umount rootfs/sys
 cp rootfs/boot/vmlinuz* ./Image.gz
 cp rootfs/boot/initrd.img* ./initrd.img
 cp rootfs/usr/lib/linux-image*/qcom/*sp970*.dtb ./
+cp rootfs/etc/debian_version ./
 
 cat Image.gz $DTB_FILE > kernel-dtb
 mkbootimg \
