@@ -77,7 +77,7 @@ mkbootimg \
     --pagesize 2048 \
     --second_offset 0x00f00000 \
     --ramdisk $RAMDISK_FILE \
-    --cmdline "androidboot.hardware=qcom androidboot.oem.product=HL6180W earlycon root=PARTLABEL=rootfs console=ttyMSM0,115200 no_framebuffer=true rw"\
+    --cmdline "earlycon root=PARTLABEL=rootfs console=ttyMSM0,115200 no_framebuffer=true rw"\
     --kernel kernel-dtb -o boot.img
 
 mv boot*.img ../../artifacts/
