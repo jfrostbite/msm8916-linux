@@ -64,9 +64,9 @@ umount rootfs/sys
 cp rootfs/boot/vmlinuz* ./Image.gz
 cp rootfs/boot/initrd.img* ./initrd.img
 cp rootfs/usr/lib/linux-image*/qcom/*sp970*.dtb ./
-cp rootfs/etc/debian_version ./
+cp rootfs/etc/debian_version ../../
 echo "查看"
-cat ./debian_version
+cat ../../debian_version
 
 cat Image.gz $DTB_FILE > kernel-dtb
 mkbootimg \
