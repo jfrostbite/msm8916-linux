@@ -19,11 +19,17 @@ jobs:
           curl -L -o kernel.zip https://file.netcut.site/uploads/20240929/a587d089b92923085a9e99f4e7c6c037.zip
           unzip kernel.zip -d artifacts
 
-      - name: Build
+      - name: Build Kernel
         run: |
           cd .github/scripts
           chmod +x build_boot_img.sh
           sudo ./build_boot_img.sh
+
+      - name: Build rootfs
+        run: |
+          cd .github/scripts
+          chmod +x build_rootfs.sh
+          sudo ./build_rootfs.sh
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
