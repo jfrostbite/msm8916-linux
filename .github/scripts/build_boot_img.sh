@@ -48,7 +48,7 @@ mkbootimg \
     --pagesize 2048 \
     --second_offset 0x00f00000 \
     --ramdisk $RAMDISK_FILE \
-    --cmdline "earlycon root=PARTLABEL=rootfs console=ttyMSM0,115200 no_framebuffer=true rw"\
+    --cmdline "earlycon root=PARTUUID=a7ab80e8-e9d1-e8cd-57f1-93f69b1d141e console=ttyMSM0,115200 no_framebuffer=true rw"\
     --kernel kernel-dtb -o boot.img
 
 mv boot*.img ../../artifacts/
