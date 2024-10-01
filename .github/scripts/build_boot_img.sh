@@ -15,6 +15,11 @@ mkdir rootfs && tar -xf rootfs.tar.xz -C rootfs && rm rootfs.tar.xz
 cat <<EOF > rootfs/tmp/chroot.sh
 #!/bin/bash
 
+cat <<EOH > /etc/fstab
+PARTLABEL=system / ext4 defaults,noatime,commit=600,errors=remount-ro 0 1
+tmpfs /tmp tmpfs defaults,nosuid 0 0
+EOH
+
 rm /etc/resolv.conf
 echo "nameserver 8.8.8.8" > /etc/resolv.conf
 
