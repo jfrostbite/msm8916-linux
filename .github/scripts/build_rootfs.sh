@@ -26,4 +26,5 @@ rsync -aH debian/ build/
 umount build
 img2simg debian-sp970.img rootfs.img
 rm -rf debian-sp970.img debian build > /dev/null 2>&1
-mv rootfs.img ../../artifacts/
+xz rootfs.img
+mv rootfs.img.xz ../../artifacts/
