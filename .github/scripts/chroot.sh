@@ -3,12 +3,6 @@
 LANG_TARGET=en_US.UTF-8
 PASSWORD=admin
 NAME=sp970
-PARTUUID=a7ab80e8-e9d1-e8cd-f157-93f69b1d141e
-
-cat <<EOF > /etc/fstab
-PARTUUID=$PARTUUID / ext4 defaults,noatime,commit=600,errors=remount-ro 0 1
-tmpfs /tmp tmpfs defaults,nosuid 0 0
-EOF
 
 rm /etc/resolv.conf
 echo "nameserver 8.8.8.8" > /etc/resolv.conf
@@ -37,12 +31,6 @@ deb https://mirrors.huaweicloud.com/debian-security bookworm-security main contr
 # deb-src https://mirrors.huaweicloud.com/debian-security bookworm-security main contrib non-free non-free-firmware
 EOF
 
-vmlinuz_name=$(basename /boot/vmlinuz-*)
-cat <<EOF > /tmp/info.md
-- 内核版本: ${vmlinuz_name#*-}
-- 默认用户名: root
-- 默认密码: $PASSWORD
-EOF
 rm -rf /etc/ssh/ssh_host_* /var/lib/apt/lists
 rm -rf /tmp/* /root/.bash_history > /dev/null 2>&1
 apt clean
