@@ -9,7 +9,7 @@ echo "nameserver 8.8.8.8" > /etc/resolv.conf
 
 apt update
 apt full-upgrade -y
-apt install -y initramfs-tools locales network-manager openssh-server systemd-timesyncd fake-hwclock
+apt install -y initramfs-tools locales network-manager openssh-server systemd-timesyncd fake-hwclock rmtfs qrtr-tools
 apt install -y /tmp/*.deb
 sed -i -e "s/# $LANG_TARGET UTF-8/$LANG_TARGET UTF-8/" /etc/locale.gen
 dpkg-reconfigure --frontend=noninteractive locales
