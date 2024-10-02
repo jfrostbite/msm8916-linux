@@ -16,12 +16,11 @@ umount debian/dev/pts
 umount debian/dev
 umount debian/sys
 cp debian/etc/debian_version ../../
-mv debian/tmp/info.md ../../
-echo >> ../../info.md
+
 rm -rf debian/tmp/* debian/root/.bash_history > /dev/null 2>&1
 
 dd if=/dev/zero of=debian-sp970.img bs=1M count=$(( $(du -ms debian | cut -f1) + 100 ))
-mkfs.ext4 -L rootfs -U $UUID debian-sp970.img
+mkfs.ext4 -L rootfs debian-sp970.img
 mount debian-sp970.img build
 rsync -aH debian/ build/
 umount build
