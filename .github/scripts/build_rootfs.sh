@@ -10,7 +10,7 @@ mount --bind /proc debian/proc
 mount --bind /dev debian/dev
 mount --bind /dev/pts debian/dev/pts
 mount --bind /sys debian/sys
-LANG=C LANGUAGE=C LC_ALL=C chroot debian /tmp/chroot.sh
+LANG=C LANGUAGE=C LC_ALL=C chroot debian chmod +x /tmp/chroot.sh && /tmp/chroot.sh
 umount debian/proc
 umount debian/dev/pts
 umount debian/dev
