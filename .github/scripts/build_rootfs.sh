@@ -1,18 +1,6 @@
 #/bin/bash
 
 DIST=bookworm
-BOOT_URL="https://github.com/KyonLi/ufi003-kernel/releases/download/6.6.52-1/boot.img"
-BOOT_NO_MODEM_URL="https://github.com/KyonLi/ufi003-kernel/releases/download/6.6.52-1/boot-no-modem.img"
-BOOT_NO_MODEM_OC_URL="https://github.com/KyonLi/ufi003-kernel/releases/download/6.6.52-1/boot-no-modem-oc.img"
-K_IMAGE_DEB_URL="https://github.com/KyonLi/ufi003-kernel/releases/download/6.6.52-1/linux-image-6.6.52-msm8916-gf7f8dd961c8e_6.6.52-gf7f8dd961c8e-1_arm64.deb"
-K_DEV_URL="https://github.com/KyonLi/ufi003-kernel/releases/tag/6.6.52-1"
-UUID=62ae670d-01b7-4c7d-8e72-60bcd00410b7
-
-rm -rf ../kernel/* > /dev/null 2>&1
-wget -P ../kernel "$BOOT_URL"
-wget -P ../kernel "$BOOT_NO_MODEM_URL"
-wget -P ../kernel "$BOOT_NO_MODEM_OC_URL"
-wget -P ../kernel "$K_IMAGE_DEB_URL"
 
 mkdir debian build
 debootstrap --arch=arm64 --foreign $DIST debian https://deb.debian.org/debian/
