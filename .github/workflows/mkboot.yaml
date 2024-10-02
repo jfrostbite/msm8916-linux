@@ -55,4 +55,4 @@ jobs:
           body_path: release_notes.md
           tag_name: ${{ steps.version.outputs.TAG_NAME }}
           files: |
-            artifacts/*.img
+            artifacts/*
