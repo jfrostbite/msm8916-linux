@@ -18,7 +18,6 @@ jobs:
         run: |
           curl -L -o kernel.zip https://file.netcut.site/uploads/20241003/14b2117122b0d046ff921a799e0b0788.zip
           unzip kernel.zip -d artifacts
-          mv artifacts/kernel/* artifacts
 
       - name: Build Kernel
         run: |
