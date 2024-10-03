@@ -19,7 +19,7 @@ rm /etc/resolv.conf
 echo "nameserver 8.8.8.8" > /etc/resolv.conf
 
 apt update
-apt install -y initramfs-tools locales network-manager openssh-server systemd-timesyncd fake-hwclock
+apt install -y initramfs-tools
 apt install -y /tmp/*.deb
 
 exit
@@ -42,13 +42,13 @@ cp rootfs/usr/lib/linux-image*/qcom/*sp970*.dtb ./
 cat Image.gz $DTB_FILE > kernel-dtb
 mkbootimg \
     --base 0x80000000 \
-    --kernel_offset 0x00080000 \
-    --ramdisk_offset 0x02000000 \
-    --tags_offset 0x01e00000 \
+    --kernel_offset 0x00008000 \
+    --ramdisk_offset 0x01000000 \
+    --tags_offset 0x00000100 \
     --pagesize 2048 \
     --second_offset 0x00f00000 \
     --ramdisk $RAMDISK_FILE \
-    --cmdline "earlycon root=PARTLABEL=rootfs pmos.debug-shell no_framebuffer=true rw"\
+    --cmdline "earlycon root=PARTLABEL=rootfs no_framebuffer=true rw"\
     --kernel kernel-dtb -o boot.img
 
-mv boot*.img ../../artifacts/
+mv boot.img ../../artifacts/
