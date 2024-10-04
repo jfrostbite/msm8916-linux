@@ -68,6 +68,12 @@ jobs:
           chmod +x build_boot_img.sh
           sudo ./build_boot_img.sh
 
+      - name: Build rootfs
+        run: |
+          cd .github/scripts
+          chmod +x build_rootfs.sh
+          sudo ./build_rootfs.sh
+
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
@@ -77,11 +83,11 @@ jobs:
       - name: Generate release tag
         id: version
         run: |
-          NAME=$(echo "Debian $(cat debian_version)")
-          TAG_NAME=$(cat debian_version)-${{ github.run_number }}
+          NAME=$(echo "Debian $(cat ./debian_version)")
+          TAG_NAME=$(cat ./debian_version)-${{ github.run_number }}
           git tag $TAG_NAME
           git push origin $TAG_NAME
-          echo -e "test build" > release_notes.md
+          echo -e "- Bootloader: lk2nd:version:18.1-next-5a72bd3b-20240920-dirty\n\n$(git log -1 --format=%B)" > release_notes.md
           echo "NAME=$NAME" >> $GITHUB_OUTPUT
           echo "TAG_NAME=$TAG_NAME" >> $GITHUB_OUTPUT
 
@@ -92,4 +98,4 @@ jobs:
           body_path: release_notes.md
           tag_name: ${{ steps.version.outputs.TAG_NAME }}
           files: |
-            artifacts/*.img
+            artifacts/*
