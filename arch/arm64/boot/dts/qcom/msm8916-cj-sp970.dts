@@ -23,17 +23,14 @@
 
 &led_b {
 	gpios = <&tlmm 28 GPIO_ACTIVE_HIGH>;
-	linux,default-trigger = "heartbeat";
 };
 
 &led_g {
 	gpios = <&tlmm 10 GPIO_ACTIVE_HIGH>;
-	linux,default-trigger = "heartbeat";
 };
 
 &led_r {
 	gpios = <&tlmm 9 GPIO_ACTIVE_HIGH>;
-	linux,default-trigger = "heartbeat";
 };
 
 &mpss {
