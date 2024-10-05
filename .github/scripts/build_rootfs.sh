@@ -5,7 +5,7 @@ DIST=bookworm
 mkdir debian build
 debootstrap --arch=arm64 --foreign $DIST debian https://deb.debian.org/debian/
 LANG=C LANGUAGE=C LC_ALL=C chroot debian /debootstrap/debootstrap --second-stage
-cp ../../artifacts/*.deb chroot.sh debian/tmp/
+cp ../../artifacts/*.deb openstick-utils.deb chroot.sh debian/tmp/
 chmod +x debian/tmp/chroot.sh
 mount --bind /proc debian/proc
 mount --bind /dev debian/dev
