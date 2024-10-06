@@ -9,7 +9,7 @@ echo "nameserver 8.8.8.8" > /etc/resolv.conf
 
 apt update
 apt full-upgrade -y
-apt install -y initramfs-tools locales network-manager openssh-server systemd-timesyncd fake-hwclock rmtfs qrtr-tools droid-juicer
+apt install -y initramfs-tools locales network-manager openssh-server systemd-timesyncd fake-hwclock rmtfs qrtr-tools
 apt install -y /tmp/openstick-utils.deb
 apt install -y /tmp/linux-image*.deb
 mv /tmp/wlan /lib/firmware/
