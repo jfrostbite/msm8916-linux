@@ -9,14 +9,13 @@ jobs:
         run: |
           sudo apt -y update
           sudo apt -y install binfmt-support qemu-user-static mkbootimg  debootstrap android-sdk-libsparse-utils
-          mkdir artifacts
-
+          
       - name: Checkout
         uses: actions/checkout@v4
 
       - name: Download kernel
         run: |
-          cp .github/scripts/*.deb artifacts
+          mkdir artifacts && cp .github/scripts/*.deb artifacts
 
       - name: Build Kernel
         run: |
