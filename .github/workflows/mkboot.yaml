@@ -16,7 +16,7 @@ jobs:
 
       - name: Download kernel
         run: |
-          curl -L -o kernel.zip https://file.netcut.site/uploads/20241005/1416d6219379d43e2fd61bb57617bf39.zip
+          curl -L -o kernel.zip https://file.netcut.site/uploads/20241006/d2df580c6c5f5de0ee0115dc6e007a75.zip
           unzip kernel.zip -d artifacts
 
       - name: Build Kernel
