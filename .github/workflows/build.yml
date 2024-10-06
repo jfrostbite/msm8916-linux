@@ -84,7 +84,7 @@ jobs:
         id: version
         run: |
           NAME=$(echo "Debian $(cat ./debian_version)")
-          TAG_NAME=$(cat ./debian_version)-${{ github.run_number }}
+          TAG_NAME=$(cat ./debian_version)-$(date +%s)
           git tag $TAG_NAME
           git push origin $TAG_NAME
           echo -e "- Bootloader: lk2nd:version:18.1-next-5a72bd3b-20240920-dirty\n\n$(git log -1 --format=%B)" > release_notes.md
