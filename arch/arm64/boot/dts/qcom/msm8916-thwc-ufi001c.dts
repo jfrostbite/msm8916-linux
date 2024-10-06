@@ -7,6 +7,13 @@
 / {
 	model = "ufi-001c/ufi-001b 4G Modem Stick";
 	compatible = "thwc,ufi001c", "qcom,msm8916";
+
+	usb_id: usb-id {
+		compatible = "linux,extcon-usb-gpio";
+		id-gpios = <&tlmm 110 GPIO_ACTIVE_HIGH>;
+		pinctrl-0 = <&usb_id_default>;
+		pinctrl-names = "default";
+	};
 };
 
 &button_restart {
@@ -28,6 +35,16 @@
 &mpss {
 	pinctrl-0 = <&sim_ctrl_default>;
 	pinctrl-names = "default";
+};
+
+&usb {
+	extcon = <&usb_id>, <&usb_id>;
+
+	status = "okay";
+};
+
+&usb_hs_phy {
+	extcon = <&usb_id>;
 };
 
 &button_default {
@@ -62,5 +79,12 @@
 			bias-disable;
 			output-high;
 		};
+	};
+
+	usb_id_default: usb-id-default-state {
+		pins = "gpio109";
+		function = "gpio";
+		drive-strength = <8>;
+		bias-pull-up;
 	};
 };
