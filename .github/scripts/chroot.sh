@@ -12,8 +12,9 @@ apt full-upgrade -y
 apt install -y initramfs-tools locales network-manager openssh-server systemd-timesyncd fake-hwclock rmtfs qrtr-tools
 apt install -y /tmp/openstick-utils.deb
 apt install -y /tmp/linux-image*.deb
-apt install -y /tmp/droid*.deb
+
 mv /tmp/wlan /lib/firmware/
+
 sed -i -e "s/# $LANG_TARGET UTF-8/$LANG_TARGET UTF-8/" /etc/locale.gen
 dpkg-reconfigure --frontend=noninteractive locales
 update-locale LANG=$LANG_TARGET LC_ALL=$LANG_TARGET LANGUAGE=$LANG_TARGET
