@@ -35,7 +35,7 @@
 			gpios = <&tlmm 114 GPIO_ACTIVE_HIGH>;
 			function = "gpio";
 			bias-disable;
-			output-high;
+			output-low;
 			default-state = "off"
 		};
 	};
@@ -88,7 +88,7 @@
 /* This selects the external SIM card slot by default */
 &tlmm {
 	sim_ctrl_default: sim-ctrl-default-state {
-		pins = "gpio26", "114";
+		pins = "gpio26", "gpio114";
 		function = "gpio";
 		drive-strength = <2>;
 		bias-disable;
