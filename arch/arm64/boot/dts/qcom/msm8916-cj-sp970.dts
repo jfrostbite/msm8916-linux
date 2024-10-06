@@ -7,11 +7,10 @@
 / {
  	model = "SP970v8 4G Modem Stick";
  	compatible = "cj,sp970", "qcom,msm8916", "lk2nd,device";
-	chassis-type = "handset";
 
 	usb_id: usb-id {
 		compatible = "linux,extcon-usb-gpio";
-		id-gpios = <&tlmm 109 GPIO_ACTIVE_HIGH>;
+		id-gpios = <&tlmm 110 GPIO_ACTIVE_HIGH>;
 		pinctrl-0 = <&usb_id_default>;
 		pinctrl-names = "default";
 	};
