@@ -48,7 +48,7 @@ mkbootimg \
     --pagesize 2048 \
     --second_offset 0x00f00000 \
     --ramdisk $RAMDISK_FILE \
-    --cmdline "earlycon root=PARTLABEL=rootfs no_framebuffer=true rw"\
+    --cmdline "earlycon root=PARTLABEL=rootfs rw"\
     --kernel kernel-dtb -o boot.img
 
 mv boot.img ../../artifacts/
