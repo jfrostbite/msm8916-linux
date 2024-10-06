@@ -13,8 +13,6 @@ apt install -y initramfs-tools locales network-manager openssh-server systemd-ti
 apt install -y /tmp/openstick-utils.deb
 apt install -y /tmp/linux-image*.deb
 
-mv /tmp/firmware/wlan /tmp/firmware/qcom /tmp/firmaware/modem_pr /lib/firmware/
-
 mkdir -p /lib/firmware/msm-firmware-loader
 chmod +x /tmp/firmware/msm-firmware-loader.sh
 cp /tmp/firmware/msm-firmware-loader.sh /usr/sbin/
