@@ -66,8 +66,7 @@
 		pins = "gpio26", "gpio114";
 		function = "gpio";
 		drive-strength = <2>;
-	
-		bias-pull-down;
+		bias-disable;
 
 		sim-en-pins {
 			label = "sim:en";
