@@ -39,8 +39,7 @@
 	sim-en-pins {
 		lable = "sim:en"
 		gpios = <&tlmm 26 GPIO_ACTIVE_HIGH>;
-		function = "gpio";
-		bias-disable;
+
 		output-low;
 		default-state = "off"
 	};
@@ -48,8 +47,7 @@
 	sim-sel-pins {
 		lable = "sim:sel"
 		gpios = <&tlmm 114 GPIO_ACTIVE_HIGH>;
-		function = "gpio";
-		bias-disable;
+
 		output-low;
 		default-state = "off"
 	};
