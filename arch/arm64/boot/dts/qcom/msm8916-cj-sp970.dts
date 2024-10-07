@@ -60,7 +60,7 @@
 	pins = "gpio28", "gpio10", "gpio9";
 };
 
-/* This selects the external SIM card slot by default */
+/* This selects the external SIM card slot by default  */
 &tlmm {
 	sim_ctrl_default: sim-ctrl-default-state {
 		pins = "gpio26", "gpio114";
