@@ -35,6 +35,24 @@
 &mpss {
 	pinctrl-0 = <&sim_ctrl_default>;
 	pinctrl-names = "default";
+	
+	sim-en-pins {
+		lable = "sim:en"
+		gpios = <&tlmm 26 GPIO_ACTIVE_HIGH>;
+		function = "gpio";
+		bias-disable;
+		output-low;
+		default-state = "off"
+	};
+
+	sim-sel-pins {
+		lable = "sim:sel"
+		gpios = <&tlmm 114 GPIO_ACTIVE_HIGH>;
+		function = "gpio";
+		bias-disable;
+		output-low;
+		default-state = "off"
+	};
 };
 
 &wcnss_iris {
@@ -63,18 +81,17 @@
 /* This selects the external SIM card slot by default */
 &tlmm {
 	sim_ctrl_default: sim-ctrl-default-state {
-		esim-sel-pins {
-			pins = "gpio26", "gpio114";
-			function = "gpio";
-			bias-disable;
-			output-high;
-		};
+		pins = "gpio26", "gpio114";
+		function = "gpio";
+		drive-strength = <2>;
+		bias-disable;
+		bias-pull-down;
 	};
 
 	usb_id_default: usb-id-default-state {
 		pins = "gpio110";
 		function = "gpio";
-		
+
 		drive-strength = <8>;
 		bias-pull-up;
 	};
