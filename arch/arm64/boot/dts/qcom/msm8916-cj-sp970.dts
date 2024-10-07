@@ -35,22 +35,6 @@
 &mpss {
 	pinctrl-0 = <&sim_ctrl_default>;
 	pinctrl-names = "default";
-	
-	sim-en-pins {
-		lable = "sim:en";
-		gpios = <&tlmm 26 GPIO_ACTIVE_HIGH>;
-
-		output-low;
-		default-state = "off";
-	};
-
-	sim-sel-pins {
-		lable = "sim:sel";
-		gpios = <&tlmm 114 GPIO_ACTIVE_HIGH>;
-
-		output-low;
-		default-state = "off";
-	};
 };
 
 &wcnss_iris {
@@ -84,6 +68,21 @@
 		drive-strength = <2>;
 	
 		bias-pull-down;
+
+		sim-en-pins {
+			label = "sim:en";
+			gpios = <&tlmm 26 GPIO_ACTIVE_LOW>;
+			bias-disable;
+			output-low;
+		};
+
+		sim-sel-pins {
+			label = "sim:sel";
+			gpios = <&tlmm 114 GPIO_ACTIVE_LOW>;
+			bias-disable;
+			output-low;
+		};
+
 	};
 
 	usb_id_default: usb-id-default-state {
