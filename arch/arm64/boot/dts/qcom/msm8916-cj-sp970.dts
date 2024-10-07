@@ -41,7 +41,7 @@
 		gpios = <&tlmm 26 GPIO_ACTIVE_HIGH>;
 
 		output-low;
-		default-state = "off"
+		default-state = "off";
 	};
 
 	sim-sel-pins {
@@ -49,7 +49,7 @@
 		gpios = <&tlmm 114 GPIO_ACTIVE_HIGH>;
 
 		output-low;
-		default-state = "off"
+		default-state = "off";
 	};
 };
 
