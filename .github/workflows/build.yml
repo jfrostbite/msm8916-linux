@@ -1,20 +1,101 @@
-name: Build
-on: [push, pull_request]
+name: Build kernel deb packages
+on:
+  push:
+    branches:
+      - '*'
+  pull_request:
+  workflow_dispatch:
+
 jobs:
   build:
+    name: Build kernel
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        arch: [arm64, arm]
-        compiler: [gcc, clang]
-    env:
-      ARCH: ${{ matrix.arch }}
+    container: debian:bookworm
     steps:
-    - uses: actions/checkout@v3
-    - uses: jirutka/setup-alpine@v1
-    - name: Prepare build environment
-      run: ./.ci-prepare.sh ${{ matrix.compiler }}
-      shell: alpine.sh --root {0}
-    - name: Build
-      run: ./.ci-build.sh
-      shell: alpine.sh {0}
+      - name: Prepare
+        run: |
+          apt -y update
+          apt -y install git lsb-release gcc-aarch64-linux-gnu bison flex libssl-dev libelf-dev debhelper bc rsync kmod cpio
+
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Prepare repository
+        run: git config --global --add safe.directory "$(pwd)"
+
+      - name: Build
+        run: |
+          export CROSS_COMPILE=aarch64-linux-gnu-
+          export ARCH=arm64
+          make sp970_defconfig
+          make deb-pkg -j"$(($(grep -c processor < /proc/cpuinfo)*2))"
+
+      - name: Prepare artifacts
+        run: |
+          mkdir artifacts && mv ../linux-image-*.deb ../linux-headers-*.deb artifacts/
+          cp arch/arm64/boot/dts/qcom/msm8916-cj-sp970.dtb artifacts/
+          cp arch/arm64/boot/Image.gz artifacts/
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: kernel
+          path: artifacts/*
+
+  bootimg:
+    name: Make boot images
+    needs: build
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Prepare
+        run: |
+          sudo apt -y update
+          sudo apt -y install binfmt-support qemu-user-static mkbootimg debootstrap android-sdk-libsparse-utils
+          mkdir artifacts
+
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Download kernel
+        uses: actions/download-artifact@v4
+        with:
+          name: kernel
+          path: artifacts
+
+      - name: Build
+        run: |
+          cd .github/scripts
+          chmod +x build_boot_img.sh
+          sudo ./build_boot_img.sh
+
+      - name: Build rootfs
+        run: |
+          cd .github/scripts
+          chmod +x build_rootfs.sh
+          sudo ./build_rootfs.sh
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: kernel and boot images
+          path: artifacts/*
+          
+      - name: Generate release tag
+        id: version
+        run: |
+          NAME=$(echo "Debian $(cat ./debian_version)")
+          TAG_NAME=$(cat ./debian_version)-$(date +%s)
+          git tag $TAG_NAME
+          git push origin $TAG_NAME
+          echo -e "- Bootloader: lk2nd:version:18.1-next-5a72bd3b-20240920-dirty\n\n$(git log -1 --format=%B)" > release_notes.md
+          echo "NAME=$NAME" >> $GITHUB_OUTPUT
+          echo "TAG_NAME=$TAG_NAME" >> $GITHUB_OUTPUT
+
+      - name: Releases
+        uses: softprops/action-gh-release@v2
+        with:
+          name: ${{ steps.version.outputs.NAME }}
+          body_path: release_notes.md
+          tag_name: ${{ steps.version.outputs.TAG_NAME }}
+          files: |
+            artifacts/*
