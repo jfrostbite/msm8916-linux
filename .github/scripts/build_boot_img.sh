@@ -4,7 +4,7 @@ DOWNLOAD_SERVER="images.linuxcontainers.org"
 DOWNLOAD_INDEX_PATH="/meta/1.0/index-system"
 DOWNLOAD_DISTRO="debian;bookworm;arm64;default"
 
-DTB_FILE=msm8916-cj-sp970.dtb
+DTB_FILE=msm8916-thwc-ufi001c.dtb
 RAMDISK_FILE=initrd.img
 
 rootfs_url="https://$DOWNLOAD_SERVER$(curl -m 10 -fsSL "https://$DOWNLOAD_SERVER$DOWNLOAD_INDEX_PATH" | grep "$DOWNLOAD_DISTRO" | cut -f 6 -d ';')rootfs.tar.xz"
@@ -37,7 +37,7 @@ umount rootfs/dev
 umount rootfs/sys
 cp rootfs/boot/vmlinuz* ./Image.gz
 cp rootfs/boot/initrd.img* ./initrd.img
-cp rootfs/usr/lib/linux-image*/qcom/*sp970*.dtb ./
+cp rootfs/usr/lib/linux-image*/qcom/$DTB_FILE ./
 
 cat Image.gz $DTB_FILE > kernel-dtb
 mkbootimg \
