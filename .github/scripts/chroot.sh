@@ -24,6 +24,7 @@ cp /tmp/firmware/uim-slot-selection.service /etc/systemd/system/
 sed -i -e "s/# $LANG_TARGET UTF-8/$LANG_TARGET UTF-8/" /etc/locale.gen
 dpkg-reconfigure --frontend=noninteractive locales
 update-locale LANG=$LANG_TARGET LC_ALL=$LANG_TARGET LANGUAGE=$LANG_TARGET
+timedatectl set-timezone "Asia/Shanghai"
 
 echo -e "$PASSWORD\n$PASSWORD" | passwd
 echo $NAME > /etc/hostname
