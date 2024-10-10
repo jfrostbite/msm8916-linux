@@ -37,7 +37,7 @@ umount rootfs/dev
 umount rootfs/sys
 cp rootfs/boot/vmlinuz* ./Image.gz
 cp rootfs/boot/initrd.img* ./initrd.img
-cp rootfs/usr/lib/linux-image*/qcom/*sp970*.dtb ./
+cp rootfs/usr/lib/linux-image*/qcom/$DTB_FILE.dtb ./
 
 cat Image.gz $DTB_FILE > kernel-dtb
 mkbootimg \
