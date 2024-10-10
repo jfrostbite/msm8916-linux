@@ -15,8 +15,11 @@ apt install -y /tmp/linux-image*.deb
 
 mkdir -p /lib/firmware/msm-firmware-loader
 chmod +x /tmp/firmware/msm-firmware-loader.sh
+chmod +x /tmp/firmware/uim-slot-selection.sh
 cp /tmp/firmware/msm-firmware-loader.sh /usr/sbin/
 cp /tmp/firmware/msm-firmware-loader.service /etc/systemd/system/
+cp /tmp/firmware/uim-slot-selection.sh /usr/sbin/
+cp /tmp/firmware/uim-slot-selection.service /etc/systemd/system/
 
 sed -i -e "s/# $LANG_TARGET UTF-8/$LANG_TARGET UTF-8/" /etc/locale.gen
 dpkg-reconfigure --frontend=noninteractive locales
@@ -44,4 +47,8 @@ EOF
 rm -rf /etc/ssh/ssh_host_* /var/lib/apt/lists
 rm -rf /tmp/* /root/.bash_history > /dev/null 2>&1
 apt clean
+
+systemctl enable msm-firmware-loader
+systemctl enable uim-slot-selection
+
 exit
