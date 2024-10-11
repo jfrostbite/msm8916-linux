@@ -47,7 +47,8 @@ EOF
 
 rm -rf /etc/ssh/ssh_host_* /var/lib/apt/lists
 rm -rf /tmp/* /root/.bash_history > /dev/null 2>&1
-apt clean
+rm -rf /var/lib/apt/lists
+apt clean all
 
 systemctl enable msm-firmware-loader
 systemctl enable uim-slot-selection
