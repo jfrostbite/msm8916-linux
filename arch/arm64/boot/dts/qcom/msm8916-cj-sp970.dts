@@ -16,10 +16,6 @@
 	};
 };
 
-$cpu_opp_table {
-	
-};
-
 &button_restart {
 	gpios = <&tlmm 107 GPIO_ACTIVE_LOW>;
 };
