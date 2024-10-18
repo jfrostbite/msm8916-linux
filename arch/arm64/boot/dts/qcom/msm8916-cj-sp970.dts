@@ -58,7 +58,7 @@
 
 &led_b {
 	gpios = <&tlmm 28 GPIO_ACTIVE_HIGH>;
-	linux,default-trigger = "heartbeat";
+	linux,default-trigger = "phy0rx";
 };
 
 &led_g {
@@ -67,6 +67,7 @@
 
 &led_r {
 	gpios = <&tlmm 9 GPIO_ACTIVE_HIGH>;
+	linux,default-trigger = "heartbeat";
 };
 
 &mpss {
