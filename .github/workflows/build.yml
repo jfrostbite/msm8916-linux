@@ -9,8 +9,7 @@ on:
 jobs:
   build:
     name: Build kernel
-    runs-on: ubuntu-latest
-    container: debian:bookworm
+    runs-on: debian:bookworm
     steps:
       - name: Prepare
         run: |
