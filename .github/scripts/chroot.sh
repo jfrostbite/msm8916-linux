@@ -1,35 +1,37 @@
 #!/bin/bash
 
 LANG_TARGET=en_US.UTF-8
-PASSWORD=admin
-NAME=sp970
+PASSWORD=adminufi003
+NAME=ufi003
 
 rm /etc/resolv.conf
 echo "nameserver 8.8.8.8" > /etc/resolv.conf
 
 apt update
 apt full-upgrade -y
-apt install -y initramfs-tools locales network-manager openssh-server systemd-timesyncd fake-hwclock rmtfs qrtr-tools
+apt install -y initramfs-tools locales network-manager openssh-server systemd-timesyncd fake-hwclock zram-tools rmtfs qrtr-tools
 apt install -y /tmp/openstick-utils.deb
 apt install -y /tmp/linux-image*.deb
 
 mkdir -p /lib/firmware/msm-firmware-loader
 chmod +x /tmp/firmware/msm-firmware-loader.sh
-chmod +x /tmp/firmware/uim-slot-selection.sh
+#chmod +x /tmp/firmware/uim-slot-selection.sh
 cp /tmp/firmware/msm-firmware-loader.sh /usr/sbin/
 cp /tmp/firmware/msm-firmware-loader.service /etc/systemd/system/
-cp /tmp/firmware/uim-slot-selection.sh /usr/sbin/
-cp /tmp/firmware/uim-slot-selection.service /etc/systemd/system/
+cp -r /tmp/firmware/qcom/ /lib/firmware/
+#cp /tmp/firmware/uim-slot-selection.sh /usr/sbin/
+#cp /tmp/firmware/uim-slot-selection.service /etc/systemd/system/
 
 sed -i -e "s/# $LANG_TARGET UTF-8/$LANG_TARGET UTF-8/" /etc/locale.gen
 dpkg-reconfigure --frontend=noninteractive locales
 update-locale LANG=$LANG_TARGET LC_ALL=$LANG_TARGET LANGUAGE=$LANG_TARGET
-timedatectl set-timezone "Asia/Shanghai"
 
 echo -e "$PASSWORD\n$PASSWORD" | passwd
 echo $NAME > /etc/hostname
 
 sed -i 's/^.\?PermitRootLogin.*$/PermitRootLogin yes/g' /etc/ssh/sshd_config
+sed -i 's/^.\?ALGO=.*$/ALGO=lzo-rle/g' /etc/default/zramswap
+sed -i 's/^.\?PERCENT=.*$/PERCENT=150/g' /etc/default/zramswap
 
 cat <<EOF > /etc/apt/sources.list
 deb http://deb.debian.org/debian/ bookworm main contrib non-free non-free-firmware
@@ -51,6 +53,5 @@ rm -rf /var/lib/apt/lists
 apt clean all
 
 systemctl enable msm-firmware-loader
-systemctl enable uim-slot-selection
 
 exit

@@ -5,8 +5,8 @@
 #include "msm8916-ufi.dtsi"
 
 / {
- 	model = "SP970 4G Modem Stick";
- 	compatible = "cj,sp970", "qcom,msm8916", "lk2nd,device";
+ 	model = "UFI003 4G Modem Stick";
+ 	compatible = "zx,ufi003", "qcom,msm8916", "lk2nd,device";
 
 	usb_id: usb-id {
 		compatible = "linux,extcon-usb-gpio";
@@ -50,33 +50,34 @@
 	opp-1900800000 {
 		opp-hz = /bits/ 64 <1900800000>;
 	};
+	opp-1996800000 {
+		opp-hz = /bits/ 64 <1996800000>;
+	};
+	opp-2073600000 {
+		opp-hz = /bits/ 64 <2073600000>;
+	};
 };
 
 &button_restart {
-	gpios = <&tlmm 107 GPIO_ACTIVE_LOW>;
+	gpios = <&tlmm 37 GPIO_ACTIVE_LOW>;
 };
 
 &led_b {
-	gpios = <&tlmm 28 GPIO_ACTIVE_HIGH>;
-	linux,default-trigger = "phy0rx";
+	gpios = <&tlmm 20 GPIO_ACTIVE_HIGH>;
 };
 
 &led_g {
-	gpios = <&tlmm 10 GPIO_ACTIVE_HIGH>;
+	gpios = <&tlmm 21 GPIO_ACTIVE_HIGH>;
 };
 
 &led_r {
-	gpios = <&tlmm 9 GPIO_ACTIVE_HIGH>;
-	linux,default-trigger = "heartbeat";
+	gpios = <&tlmm 22 GPIO_ACTIVE_HIGH>;
+	linux,default-trigger = "mmc0";
 };
 
 &mpss {
 	pinctrl-0 = <&sim_ctrl_default>;
 	pinctrl-names = "default";
-};
-
-&wcnss_iris {
-	compatible = "qcom,wcn3660b";
 };
 
 &usb {
@@ -90,32 +91,36 @@
 };
 
 &button_default {
-	pins = "gpio107";
+	pins = "gpio37";
 	bias-pull-up;
 };
 
 &gpio_leds_default {
-	pins = "gpio28", "gpio10", "gpio9";
+	pins = "gpio20", "gpio21", "gpio22";
 };
 
 /* This selects the external SIM card slot by default */
 &tlmm {
 	sim_ctrl_default: sim-ctrl-default-state {
-		pins = "gpio120", "gpio114";
-		function = "gpio";
-		drive-strength = <2>;
-		bias-disable;
+		esim-sel-pins {
+			pins = "gpio0", "gpio3";
+			function = "gpio";
+			bias-disable;
+			output-low;
+		};
 
 		sim-en-pins {
-			label = "sim:en";
-			gpios = <&tlmm 120 GPIO_ACTIVE_HIGH>;
-			default-state = "on";
+			pins = "gpio1";
+			function = "gpio";
+			bias-disable;
+			output-low;
 		};
 
 		sim-sel-pins {
-			label = "sim:sel";
-			gpios = <&tlmm 114 GPIO_ACTIVE_HIGH>;
-			default-state = "off";
+			pins = "gpio2";
+			function = "gpio";
+			bias-disable;
+			output-high;
 		};
 	};
 
