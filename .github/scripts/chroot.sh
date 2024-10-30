@@ -18,18 +18,22 @@ mkdir -p /lib/firmware/msm-firmware-loader
 chmod +x /tmp/firmware/msm-firmware-loader.sh
 chmod +x /tmp/firmware/mobian-usb-gadget
 chmod +x /tmp/firmware/mobian-setup-usb-network
+chmod +x /tmp/firmware/openstick-expanddisk-startup.sh
 chmod +x /tmp/firmware/gc
 chmod +x /tmp/firmware/adbd
 #chmod +x /tmp/firmware/uim-slot-selection.sh
 cp /tmp/firmware/msm-firmware-loader.sh /usr/sbin/
 cp /tmp/firmware/mobian-usb-gadget /usr/sbin/
 cp /tmp/firmware/mobian-setup-usb-network /usr/sbin/
+cp /tmp/firmware/openstick-expanddisk-startup.sh /usr/sbin/
 cp /tmp/firmware/gc /usr/bin/
 cp /tmp/firmware/adbd /usr/bin/
 
 cp /tmp/firmware/msm-firmware-loader.service /etc/systemd/system/
 cp /tmp/firmware/mobian-usb-gadget.service /etc/systemd/system/
 cp /tmp/firmware/mobian-setup-usb-network.service /etc/systemd/system/
+cp /tmp/firmware/mobian-ssh-keygen.service /etc/systemd/system/
+cp /tmp/firmware/openstick-expanddisk-startup.service /etc/systemd/system/
 cp -r /tmp/firmware/qcom/ /lib/firmware/
 #cp /tmp/firmware/uim-slot-selection.sh /usr/sbin/
 #cp /tmp/firmware/uim-slot-selection.service /etc/systemd/system/
@@ -67,5 +71,7 @@ apt clean all
 systemctl enable msm-firmware-loader
 systemctl enable mobian-usb-gadget
 systemctl enable mobian-setup-usb-network
+systemctl enable mobian-ssh-keygen
+systemctl enable openstick-expanddisk-startup
 
 exit
