@@ -9,15 +9,27 @@ echo "nameserver 8.8.8.8" > /etc/resolv.conf
 
 apt update
 apt full-upgrade -y
-apt install -y initramfs-tools locales network-manager openssh-server systemd-timesyncd fake-hwclock zram-tools rmtfs qrtr-tools
-apt install -y /tmp/openstick-utils.deb
+apt install -y apt-transport-https ca-certificates
+apt install -y initramfs-tools locales network-manager openssh-server systemd-timesyncd fake-hwclock zram-tools rmtfs dnsmasq qrtr-tools
+#apt install -y /tmp/openstick-utils.deb
 apt install -y /tmp/linux-image*.deb
 
 mkdir -p /lib/firmware/msm-firmware-loader
 chmod +x /tmp/firmware/msm-firmware-loader.sh
+chmod +x /tmp/firmware/mobian-usb-gadget
+chmod +x /tmp/firmware/mobian-setup-usb-network
+chmod +x /tmp/firmware/gc
+chmod +x /tmp/firmware/adbd
 #chmod +x /tmp/firmware/uim-slot-selection.sh
 cp /tmp/firmware/msm-firmware-loader.sh /usr/sbin/
+cp /tmp/firmware/mobian-usb-gadget /usr/sbin/
+cp /tmp/firmware/mobian-setup-usb-network /usr/sbin/
+cp /tmp/firmware/gc /usr/bin/
+cp /tmp/firmware/adbd /usr/bin/
+
 cp /tmp/firmware/msm-firmware-loader.service /etc/systemd/system/
+cp /tmp/firmware/mobian-usb-gadget.service /etc/systemd/system/
+cp /tmp/firmware/mobian-setup-usb-network.service /etc/systemd/system/
 cp -r /tmp/firmware/qcom/ /lib/firmware/
 #cp /tmp/firmware/uim-slot-selection.sh /usr/sbin/
 #cp /tmp/firmware/uim-slot-selection.service /etc/systemd/system/
@@ -53,5 +65,7 @@ rm -rf /var/lib/apt/lists
 apt clean all
 
 systemctl enable msm-firmware-loader
+systemctl enable mobian-usb-gadget
+systemctl enable mobian-setup-usb-network
 
 exit
