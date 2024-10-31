@@ -10,22 +10,22 @@ echo "nameserver 8.8.8.8" > /etc/resolv.conf
 apt update
 apt full-upgrade -y
 apt install -y apt-transport-https ca-certificates
-apt install -y initramfs-tools locales network-manager openssh-server systemd-timesyncd fake-hwclock zram-tools rmtfs dnsmasq qrtr-tools
-#apt install -y /tmp/openstick-utils.deb
+apt install -y initramfs-tools locales openssh-server systemd-timesyncd fake-hwclock zram-tools rmtfs qrtr-tools dnsmasq nftables nano pppoeconf ppp pppoe
+# apt install -y /tmp/openstick-utils.deb
 apt install -y /tmp/linux-image*.deb
 
 mkdir -p /lib/firmware/msm-firmware-loader
 chmod +x /tmp/firmware/msm-firmware-loader.sh
 chmod +x /tmp/firmware/mobian-usb-gadget
 chmod +x /tmp/firmware/mobian-setup-usb-network
-chmod +x /tmp/firmware/openstick-expanddisk-startup.sh
+chmod +x /tmp/firmware/mobian-expandisk-startup.sh
 chmod +x /tmp/firmware/gc
 chmod +x /tmp/firmware/adbd
 #chmod +x /tmp/firmware/uim-slot-selection.sh
 cp /tmp/firmware/msm-firmware-loader.sh /usr/sbin/
 cp /tmp/firmware/mobian-usb-gadget /usr/sbin/
 cp /tmp/firmware/mobian-setup-usb-network /usr/sbin/
-cp /tmp/firmware/openstick-expanddisk-startup.sh /usr/sbin/
+cp /tmp/firmware/mobian-expandisk-startup.sh /usr/sbin/
 cp /tmp/firmware/gc /usr/bin/
 cp /tmp/firmware/adbd /usr/bin/
 
@@ -33,7 +33,7 @@ cp /tmp/firmware/msm-firmware-loader.service /etc/systemd/system/
 cp /tmp/firmware/mobian-usb-gadget.service /etc/systemd/system/
 cp /tmp/firmware/mobian-setup-usb-network.service /etc/systemd/system/
 cp /tmp/firmware/mobian-ssh-keygen.service /etc/systemd/system/
-cp /tmp/firmware/openstick-expanddisk-startup.service /etc/systemd/system/
+cp /tmp/firmware/mobian-expandisk-startup.service /etc/systemd/system/
 cp -r /tmp/firmware/qcom/ /lib/firmware/
 #cp /tmp/firmware/uim-slot-selection.sh /usr/sbin/
 #cp /tmp/firmware/uim-slot-selection.service /etc/systemd/system/
@@ -68,10 +68,13 @@ rm -rf /tmp/* /root/.bash_history > /dev/null 2>&1
 rm -rf /var/lib/apt/lists
 apt clean all
 
+sed -i 's/#DNSStubListener=yes/DNSStubListener=no/' /etc/systemd/resolved.conf
+sed -i 's/#net.ipv4.ip_forward=1/net.ipv4.ip_forward=1/' /etc/sysctl.conf
+
 systemctl enable msm-firmware-loader
 systemctl enable mobian-usb-gadget
-systemctl enable mobian-setup-usb-network
+# systemctl enable mobian-setup-usb-network
 systemctl enable mobian-ssh-keygen
-systemctl enable openstick-expanddisk-startup
+systemctl enable mobian-expandisk-startup
 
 exit

@@ -1,18 +1,15 @@
 #!/bin/sh
 
-if [ ! -e /etc/NetworkManager/system-connections/USB.nmconnection ]; then
+if [ ! -e /etc/NetworkManager/system-connections/usb.nmconnection ]; then
     # Create network connection
-    nmcli connection add con-name USB \
-                         ifname usb0 \
-                         type ethernet \
-                         ip4 192.168.100.1/16
+    nmcli c add con-name usb type ethernet ifname usb0 ipv4.addresses 192.168.100.1/24 ipv4.method shared autoconnect yes
 
     # Set priorities so it doesn't take precedence over WiFi/mobile connections
-    nmcli connection modify USB ipv4.route-metric 1500
-    nmcli connection modify USB ipv4.dns-priority 150
+    nmcli connection modify usb ipv4.route-metric 1500
+    nmcli connection modify usb ipv4.dns-priority 150
 
     # Auto connection so it can be used for tethering
-    nmcli connection modify USB ipv4.method shared
+    # nmcli connection modify USB ipv4.method shared
     nmcli con add con-name "modem" type "gsm" ifname "wwan0qmi0"
 fi
 
