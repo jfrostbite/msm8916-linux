@@ -1,0 +1,10 @@
+[Unit] 
+Description=One-time startup diagnose for MSM8916 sticks.
+
+[Service] 
+Type=oneshot
+ExecStart=/usr/sbin/mobian-startup.sh
+
+[Install] 
+WantedBy=default.target
+
