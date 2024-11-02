@@ -88,6 +88,7 @@ apt clean all
 
 sed -i 's/#DNSStubListener=yes/DNSStubListener=no/' /etc/systemd/resolved.conf
 sed -i 's/#net.ipv4.ip_forward=1/net.ipv4.ip_forward=1/' /etc/sysctl.conf
+update-alternatives --set iptables /usr/sbin/iptables-legacy
 
 systemctl enable msm-firmware-loader
 systemctl enable mobian-usb-gadget
