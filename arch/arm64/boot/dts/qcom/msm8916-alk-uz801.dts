@@ -5,8 +5,8 @@
 #include "msm8916-ufi.dtsi"
 
 / {
-	model = "uz801 v3.0 4G Modem Stick";
-	compatible = "yiming,uz801-v3", "qcom,msm8916";
+	model = "uz801 4G Modem Stick";
+	compatible = "alk,uz801", "qcom,msm8916";
 };
 
 &button_restart {
