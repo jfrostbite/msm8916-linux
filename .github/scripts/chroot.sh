@@ -1,11 +1,13 @@
 #!/bin/bash
 
 LANG_TARGET=en_US.UTF-8
-PASSWORD=adminufi003
-NAME=ufi003
+PASSWORD=adminuz801
+NAME=uz801
 
 rm /etc/resolv.conf
 echo "nameserver 8.8.8.8" > /etc/resolv.conf
+
+echo "no-modem" > /boot/lk2nd_rproc_mode
 
 apt update
 apt full-upgrade -y
@@ -63,7 +65,7 @@ echo -e "$PASSWORD\n$PASSWORD" | passwd
 echo $NAME > /etc/hostname
 
 sed -i 's/^.\?PermitRootLogin.*$/PermitRootLogin yes/g' /etc/ssh/sshd_config
-sed -i 's/^.\?ALGO=.*$/ALGO=lzo-rle/g' /etc/default/zramswap
+sed -i 's/^.\?ALGO=.*$/ALGO=zstd/g' /etc/default/zramswap
 sed -i 's/^.\?PERCENT=.*$/PERCENT=150/g' /etc/default/zramswap
 
 cat <<EOF > /etc/apt/sources.list
