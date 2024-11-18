@@ -7,8 +7,6 @@ NAME=uz801
 rm /etc/resolv.conf
 echo "nameserver 8.8.8.8" > /etc/resolv.conf
 
-echo "no-modem" > /boot/lk2nd_rproc_mode
-
 apt update
 apt full-upgrade -y
 apt install -y apt-transport-https ca-certificates
