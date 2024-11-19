@@ -1,0 +1,11 @@
+[Unit]
+Description=Expand root to full size
+
+[Service]
+Type=oneshot
+ExecStart=/usr/sbin/mobian-expandisk-startup.sh
+ExecStartPost=/bin/systemctl disable mobian-expandisk-startup.service
+
+[Install]
+WantedBy=multi-user.target 
+
