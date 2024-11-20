@@ -6,7 +6,8 @@ DOWNLOAD_INDEX_PATH="/meta/1.0/index-system"
 DOWNLOAD_DISTRO="debian;bookworm;arm64;default"
 DIST=bookworm
 DEVICE="uz801"
-DTB_FILE="msm8916-alk-${DEVICE}.dtb"
+VENDOR="alk"
+DTB_FILE="msm8916-${VENDOR}-${DEVICE}.dtb"
 CMDLINE="earlycon console=tty0 console=ttyMSM0,115200 root=PARTLABEL=system rw"
 
 # 判断../../artifacts/是否存在，并且有linux-*.deb文件，如果不存在，那么从../../../中复制, 如果复制失败，那么退出
