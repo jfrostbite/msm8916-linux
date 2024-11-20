@@ -23,7 +23,7 @@ chmod +x /tmp/firmware/mobian-startup.sh
 chmod +x /tmp/firmware/gc
 chmod +x /tmp/firmware/adbd
 chmod +x /tmp/firmware/run-iptables
-#chmod +x /tmp/firmware/uim-slot-selection.sh
+chmod +x /tmp/firmware/uim-slot-selection.sh
 cp /tmp/firmware/msm-firmware-loader.sh /usr/sbin/
 cp /tmp/firmware/mobian-usb-gadget /usr/sbin/
 cp /tmp/firmware/mobian-setup-usb-network /usr/sbin/
@@ -52,8 +52,8 @@ cp /tmp/firmware/run-iptables /etc/network/if-up.d/
 cp /tmp/firmware/firewall.conf /etc/firewall.conf
 
 
-#cp /tmp/firmware/uim-slot-selection.sh /usr/sbin/
-#cp /tmp/firmware/uim-slot-selection.service /etc/systemd/system/
+cp /tmp/firmware/uim-slot-selection.sh /usr/sbin/
+cp /tmp/firmware/uim-slot-selection.service /etc/systemd/system/
 
 sed -i -e "s/# $LANG_TARGET UTF-8/$LANG_TARGET UTF-8/" /etc/locale.gen
 dpkg-reconfigure --frontend=noninteractive locales
@@ -90,6 +90,7 @@ sed -i 's/#DNSStubListener=yes/DNSStubListener=no/' /etc/systemd/resolved.conf
 sed -i 's/#net.ipv4.ip_forward=1/net.ipv4.ip_forward=1/' /etc/sysctl.conf
 
 systemctl enable msm-firmware-loader
+systemctl enable uim-slot-selection
 systemctl enable mobian-usb-gadget
 systemctl enable mobian-setup-usb-network
 systemctl enable mobian-ssh-keygen
