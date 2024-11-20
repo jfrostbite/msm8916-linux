@@ -1,6 +1,7 @@
 #/bin/bash
 
 DIST=bookworm
+DEVICE="sp970"
 
 mkdir debian build
 debootstrap --arch=arm64 --foreign $DIST debian https://deb.debian.org/debian/
@@ -20,12 +21,12 @@ cp debian/etc/debian_version ../../
 
 rm -rf debian/tmp/* debian/root/.bash_history > /dev/null 2>&1
 
-dd if=/dev/zero of=debian-sp970.img bs=1M count=$(( $(du -ms debian | cut -f1) + 100 ))
-mkfs.ext4 -L rootfs debian-sp970.img
-mount debian-sp970.img build
+dd if=/dev/zero of=debian-${DEVICE}.img bs=1M count=$(( $(du -ms debian | cut -f1) + 100 ))
+mkfs.ext4 -L rootfs debian-${DEVICE}.img
+mount debian-${DEVICE}.img build
 rsync -aH debian/ build/
 umount build
-img2simg debian-sp970.img rootfs.img
-rm -rf debian-sp970.img debian build > /dev/null 2>&1
+img2simg debian-${DEVICE}.img rootfs.img
+rm -rf debian-${DEVICE}.img debian build > /dev/null 2>&1
 xz rootfs.img
 mv rootfs.img.xz ../../artifacts/

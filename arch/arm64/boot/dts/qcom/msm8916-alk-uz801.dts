@@ -1,0 +1,74 @@
+// SPDX-License-Identifier: GPL-2.0-only
+
+/dts-v1/;
+
+#include "msm8916-ufi.dtsi"
+
+/ {
+	model = "uz801 4G Modem Stick";
+	compatible = "alk,uz801", "qcom,msm8916";
+};
+
+&cpu_opp_table {
+	opp-1094400000 {
+		opp-hz = /bits/ 64 <1094400000>;
+	};
+	opp-1152000000 {
+		opp-hz = /bits/ 64 <1152000000>;
+	};
+	opp-1209600000 {
+		opp-hz = /bits/ 64 <1209600000>;
+	};
+	opp-1248000000 {
+		opp-hz = /bits/ 64 <1248000000>;
+	};
+	opp-1363200000 {
+		opp-hz = /bits/ 64 <1363200000>;
+	};
+	opp-1401600000 {
+		opp-hz = /bits/ 64 <1401600000>;
+	};
+	opp-1516800000 {
+		opp-hz = /bits/ 64 <1516800000>;
+	};
+	opp-1612800000 {
+		opp-hz = /bits/ 64 <1612800000>;
+	};
+	opp-1708800000 {
+		opp-hz = /bits/ 64 <1708800000>;
+	};
+	opp-1804800000 {
+		opp-hz = /bits/ 64 <1804800000>;
+	};
+	opp-1900800000 {
+		opp-hz = /bits/ 64 <1900800000>;
+	};
+};
+
+&button_restart {
+	gpios = <&tlmm 23 GPIO_ACTIVE_LOW>;
+};
+
+&led_b {
+	gpios = <&tlmm 6 GPIO_ACTIVE_HIGH>;
+	linux,default-trigger = "default";
+};
+
+&led_g {
+	gpios = <&tlmm 8 GPIO_ACTIVE_HIGH>;
+	linux,default-trigger = "phy0rx";
+};
+
+&led_r {
+	gpios = <&tlmm 7 GPIO_ACTIVE_HIGH>;
+	linux,default-trigger = "heartbeat";
+};
+
+&button_default {
+	pins = "gpio23";
+	bias-pull-up;
+};
+
+&gpio_leds_default {
+	pins = "gpio6", "gpio7", "gpio8";
+};

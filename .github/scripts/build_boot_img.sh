@@ -3,8 +3,9 @@
 DOWNLOAD_SERVER="images.linuxcontainers.org"
 DOWNLOAD_INDEX_PATH="/meta/1.0/index-system"
 DOWNLOAD_DISTRO="debian;bookworm;arm64;default"
-
-DTB_FILE=msm8916-cj-sp970.dtb
+DEVICE="sp970"
+VENDOR="cj"
+DTB_FILE=msm8916-${VENDOR}-${DEVICE}.dtb
 RAMDISK_FILE=initrd.img
 
 rootfs_url="https://$DOWNLOAD_SERVER$(curl -m 10 -fsSL "https://$DOWNLOAD_SERVER$DOWNLOAD_INDEX_PATH" | grep "$DOWNLOAD_DISTRO" | cut -f 6 -d ';')rootfs.tar.xz"
@@ -48,7 +49,7 @@ mkbootimg \
     --pagesize 2048 \
     --second_offset 0x00f00000 \
     --ramdisk $RAMDISK_FILE \
-    --cmdline "earlycon console=tty0 console=ttyMSM0,115200 root=PARTLABEL=rootfs rw"\
+    --cmdline "earlycon console=tty0 console=ttyMSM0,115200 root=PARTLABEL=system rw"\
     --kernel kernel-dtb -o boot.img
 
 mv boot.img ../../artifacts/
