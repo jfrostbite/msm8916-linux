@@ -1,8 +1,8 @@
 #!/bin/bash
 
 LANG_TARGET=en_US.UTF-8
-PASSWORD=adminsp970
-NAME=sp970
+PASSWORD=adminufi003
+NAME=ufi003
 
 rm /etc/resolv.conf
 echo "nameserver 8.8.8.8" > /etc/resolv.conf
