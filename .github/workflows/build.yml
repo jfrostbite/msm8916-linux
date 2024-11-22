@@ -32,7 +32,7 @@ jobs:
       - name: Prepare artifacts
         run: |
           mkdir artifacts && mv ../linux-image-*.deb ../linux-headers-*.deb artifacts/
-          cp arch/arm64/boot/dts/qcom/msm8916-cj-sp970.dtb artifacts/
+          cp arch/arm64/boot/dts/qcom/msm8916-*.dtb artifacts/
           cp arch/arm64/boot/Image.gz artifacts/
 
       - name: Upload artifacts
