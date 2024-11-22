@@ -1,8 +1,8 @@
 #!/bin/bash
 
 LANG_TARGET=en_US.UTF-8
-PASSWORD=adminsp970
-NAME=sp970
+PASSWORD=adminuz801
+NAME=uz801
 
 rm /etc/resolv.conf
 echo "nameserver 8.8.8.8" > /etc/resolv.conf
@@ -90,7 +90,6 @@ sed -i 's/#DNSStubListener=yes/DNSStubListener=no/' /etc/systemd/resolved.conf
 sed -i 's/#net.ipv4.ip_forward=1/net.ipv4.ip_forward=1/' /etc/sysctl.conf
 
 systemctl enable msm-firmware-loader
-systemctl enable uim-slot-selection
 systemctl enable mobian-usb-gadget
 systemctl enable mobian-setup-usb-network
 systemctl enable mobian-ssh-keygen

@@ -1,7 +1,7 @@
 #!/bin/bash
 
 DIST=bookworm
-DEVICE="sp970"
+DEVICE="uz801"
 
 mkdir debian build
 debootstrap --arch=arm64 --foreign $DIST debian https://deb.debian.org/debian/
