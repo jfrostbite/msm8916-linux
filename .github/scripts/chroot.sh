@@ -87,6 +87,9 @@ rm -rf /etc/resolv.conf
 apt clean all
 
 sed -i 's/#DNSStubListener=yes/DNSStubListener=no/' /etc/systemd/resolved.conf
+sed -i 's/#SystemMaxUse=/SystemMaxUse=100M/' /etc/systemd/journald.conf
+sed -i 's/#SystemMaxFileSize=/SystemMaxFileSize=50M/' /etc/systemd/journald.conf
+sed -i 's/#SystemMaxFiles=100/SystemMaxFiles=10/' /etc/systemd/journald.conf
 sed -i 's/#net.ipv4.ip_forward=1/net.ipv4.ip_forward=1/' /etc/sysctl.conf
 
 systemctl enable msm-firmware-loader
@@ -98,7 +101,5 @@ systemctl enable mobian-startup.timer
 
 update-alternatives --set iptables /usr/sbin/iptables-legacy
 update-alternatives --set ip6tables /usr/sbin/ip6tables-legacy
-update-alternatives --set arptables /usr/sbin/arptables-legacy
-update-alternatives --set ebtables /usr/sbin/ebtables-legacy
 
 exit
