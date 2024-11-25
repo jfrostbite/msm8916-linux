@@ -1,0 +1,18 @@
+#!/bin/sh
+
+if [ ! -e /etc/NetworkManager/system-connections/usb.nmconnection ]; then
+    # Create network connection
+    nmcli c add type bridge ifname nm-bridge con-name br0 ipv4.method manual ipv4.addresses 192.168.100.1/24 ipv4.gateway '' ipv4.dns ''
+    nmcli c add type bridge-slave ifname usb0 con-name usb master br0 autoconnect yes
+
+    # Set priorities so it doesn't take precedence over WiFi/mobile connections
+    # nmcli connection modify usb ipv4.route-metric 1500
+    # nmcli connection modify usb ipv4.dns-priority 150
+
+    # Auto connection so it can be used for tethering
+    # nmcli connection modify USB ipv4.method shared
+    nmcli con add con-name "modem" type "gsm" ifname "wwan0qmi0"
+fi
+
+# set up ip forward
+sysctl -w net.ipv4.ip_forward=1

@@ -1,0 +1,12 @@
+[Unit]
+Description=Setup USB networking
+Requires=NetworkManager.service mobian-usb-gadget.service
+After=NetworkManager.service mobian-usb-gadget.service
+
+[Service]
+Type=oneshot
+ExecStart=/usr/sbin/mobian-setup-usb-network
+ExecStartPost=/bin/systemctl disable mobian-setup-usb-network
+
+[Install]
+WantedBy=multi-user.target
