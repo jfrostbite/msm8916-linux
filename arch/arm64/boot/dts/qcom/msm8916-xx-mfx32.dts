@@ -1,0 +1,218 @@
+// SPDX-License-Identifier: GPL-2.0-only
+
+/dts-v1/;
+
+#include "msm8916-ufi.dtsi"
+#include "msm8916-memory-exp.dtsi"
+
+/ {
+ 	model = "mfx32 4G Modem Stick";
+ 	compatible = "xx,mfx32", "qcom,msm8916", "lk2nd,device";
+
+	usb_id: usb-id {
+		compatible = "linux,extcon-usb-gpio";
+		id-gpios = <&tlmm 110 GPIO_ACTIVE_HIGH>;
+		pinctrl-0 = <&usb_id_default>;
+		pinctrl-names = "default";
+	};
+
+	battery: battery {
+		compatible = "simple-battery";
+		voltage-min-design-microvolt = <3400000>;
+		voltage-max-design-microvolt = <4200000>;
+		energy-full-design-microwatt-hours = <7770000>;
+		charge-full-design-microamp-hours = <2100000>;
+
+		ocv-capacity-celsius = <25>;
+		ocv-capacity-table-0 = <4189000 100>, <4073000 95>,
+			<4044000 90>, <4039000 85>, <4032000 80>, <4025000 75>,
+			<4008000 70>, <3974000 65>, <3953000 60>, <3912000 55>,
+			<3884000 50>, <3858000 45>, <3849000 40>, <3839000 35>,
+			<3816000 30>, <3774000 25>, <3690000 20>, <3647000 16>,
+			<3611000 13>, <3539000 11>, <3477000 10>, <3421000 9>,
+			<3388000 8>, <3364000 7>, <3328000 6>, <3235000 5>,
+			<3174000 4>, <3096000 3>, <3062000 2>, <3035000 1>,
+			<3000000 0>;
+	};
+};
+
+&cpu_opp_table {
+	opp-1094400000 {
+		opp-hz = /bits/ 64 <1094400000>;
+	};
+	opp-1152000000 {
+		opp-hz = /bits/ 64 <1152000000>;
+	};
+	opp-1209600000 {
+		opp-hz = /bits/ 64 <1209600000>;
+	};
+	opp-1248000000 {
+		opp-hz = /bits/ 64 <1248000000>;
+	};
+	opp-1363200000 {
+		opp-hz = /bits/ 64 <1363200000>;
+	};
+	opp-1401600000 {
+		opp-hz = /bits/ 64 <1401600000>;
+	};
+	opp-1497600000 {
+		opp-hz = /bits/ 64 <1497600000>;
+	};
+	opp-1593600000 {
+		opp-hz = /bits/ 64 <1593600000>;
+	};
+	opp-1689600000 {
+		opp-hz = /bits/ 64 <1689600000>;
+	};
+	opp-1785600000 {
+		opp-hz = /bits/ 64 <1785600000>;
+	};
+	opp-1881600000 {
+		opp-hz = /bits/ 64 <1881600000>;
+	};
+	opp-1977600000 {
+		opp-hz = /bits/ 64 <1977600000>;
+	};
+	opp-2073600000 {
+		opp-hz = /bits/ 64 <2073600000>;
+	};
+};
+
+&button_restart {
+	gpios = <&tlmm 37 GPIO_ACTIVE_LOW>;
+};
+
+&usb {
+	extcon = <&usb_id>, <&usb_id>;
+	status = "okay";
+};
+
+&usb_hs_phy {
+	extcon = <&usb_id>;
+};
+
+&pm8916_bms {
+	monitored-battery = <&battery>;
+	power-supplies = <&pm8916_charger>;
+
+	status = "disabled";
+};
+
+&pm8916_charger {
+	qcom,vdd-safe = <4200000>;
+	qcom,ibat-safe = <500000>;
+
+	monitored-battery = <&battery>;
+
+	status = "disabled";
+};
+
+&leds {
+	status = "okay";
+	
+	ftest {
+		gpios = <&tlmm 32 GPIO_ACTIVE_HIGH>;
+		label = "ftest";
+		linux,default-trigger = "none";
+		default-state = "keep";
+		retain-state-suspended;
+	};
+
+	esim1_en {
+		gpios = <&tlmm 119 GPIO_ACTIVE_HIGH>;
+		label = "esim1_en";
+		linux,default-trigger = "none";
+		default-state = "on";
+		retain-state-suspended;
+	};
+
+	esim2_en {
+		gpios = <&tlmm 14 GPIO_ACTIVE_HIGH>;
+		label = "esim2_en";
+		linux,default-trigger = "none";
+		default-state = "keep";
+		retain-state-suspended;
+	};
+
+	esim3_en {
+		gpios = <&tlmm 12 GPIO_ACTIVE_HIGH>;
+		label = "esim3_en";
+		linux,default-trigger = "none";
+		default-state = "keep";
+		retain-state-suspended;
+	};
+
+	sim_hotplug {
+		gpios = <&tlmm 114 GPIO_ACTIVE_HIGH>;
+		label = "sim_hotplug";
+		linux,default-trigger = "none";
+		default-state = "keep";
+		retain-state-suspended;
+	};
+
+	bat1 {
+		gpios = <&tlmm 0 GPIO_ACTIVE_HIGH>;
+		label = "bat1";
+		linux,default-trigger = "none";
+		default-state = "off";
+		retain-state-suspended;
+	};
+
+	batl2 {
+		gpios = <&tlmm 91 GPIO_ACTIVE_HIGH>;
+		label = "batl2";
+		linux,default-trigger = "none";
+		default-state = "off";
+		retain-state-suspended;
+	};
+
+	batl3 {
+		gpios = <&tlmm 1 GPIO_ACTIVE_HIGH>;
+		label = "batl3";
+		linux,default-trigger = "none";
+		default-state = "off";
+		retain-state-suspended;
+	};
+
+	batl4 {
+		gpios = <&tlmm 100 GPIO_ACTIVE_HIGH>;
+		label = "batl4";
+		linux,default-trigger = "none";
+		default-state = "on";
+		retain-state-suspended;
+	};
+};
+
+&led_b {
+	gpios = <&tlmm 71 GPIO_ACTIVE_HIGH>;
+};
+
+&led_g {
+	gpios = <&tlmm 73 GPIO_ACTIVE_HIGH>;
+	linux,default-trigger = "panic";
+};
+
+&led_r {
+	gpios = <&tlmm 72 GPIO_ACTIVE_HIGH>;
+	linux,default-trigger = "heartbeat";
+};
+
+&button_default {
+	pins = "gpio37";
+	bias-pull-up;
+};
+
+&gpio_leds_default {
+	pins = "gpio72", "gpio71", "gpio70", "gpio73", "gpio0", "gpio91", "gpio1", "gpio100";
+};
+
+/* This selects the external SIM card slot by default */
+&tlmm {
+	
+	usb_id_default: usb-id-default-state {
+		pins = "gpio110";
+		function = "gpio";
+		drive-strength = <8>;
+		bias-pull-up;
+	};
+};

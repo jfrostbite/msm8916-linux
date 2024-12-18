@@ -32,7 +32,7 @@
 		};
 	};
 
-	leds {
+	leds: leds {
 		compatible = "gpio-leds";
 
 		pinctrl-0 = <&gpio_leds_default>;

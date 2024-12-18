@@ -5,8 +5,8 @@ DOWNLOAD_SERVER="images.linuxcontainers.org"
 DOWNLOAD_INDEX_PATH="/meta/1.0/index-system"
 DOWNLOAD_DISTRO="debian;bookworm;arm64;default"
 DIST=bookworm
-DEVICE="uz801"
-VENDOR="alk"
+DEVICE="mfx32"
+VENDOR="xx"
 DTB_FILE="msm8916-${VENDOR}-${DEVICE}.dtb"
 CMDLINE="earlycon console=tty0 console=ttyMSM0,115200 root=PARTLABEL=system rw"
 
