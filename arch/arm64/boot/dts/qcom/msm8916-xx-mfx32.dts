@@ -34,6 +34,31 @@
 			<3174000 4>, <3096000 3>, <3062000 2>, <3035000 1>,
 			<3000000 0>;
 	};
+
+	i2c-gpio {
+		compatible = "i2c-gpio";
+		sda-gpios = <&tlmm 18 (GPIO_ACTIVE_HIGH | GPIO_OPEN_DRAIN)>;
+		scl-gpios = <&tlmm 19 (GPIO_ACTIVE_HIGH | GPIO_OPEN_DRAIN)>;
+
+		i2c-gpio,delay-us = <5>; /* ~50 kHz */
+		i2c-gpio,timeout-ms = <100>;
+		
+		i2c-gpio,udelay = <5>;
+
+		pinctrl-0 = <&gpio_i2c_default>;
+		pinctrl-names = "default";
+
+		#address-cells = <1>;
+		#size-cells = <0>;
+
+		status = "okay";
+
+		aht10@38 {
+			compatible = "aosong,aht10";
+			reg = <0x38>;
+			status = "okay";
+		};
+	};
 };
 
 &cpu_opp_table {
@@ -178,7 +203,7 @@
 		gpios = <&tlmm 100 GPIO_ACTIVE_HIGH>;
 		label = "batl4";
 		linux,default-trigger = "none";
-		default-state = "on";
+		default-state = "off";
 		retain-state-suspended;
 	};
 };
@@ -194,7 +219,7 @@
 
 &led_r {
 	gpios = <&tlmm 72 GPIO_ACTIVE_HIGH>;
-	linux,default-trigger = "heartbeat";
+//	linux,default-trigger = "heartbeat";
 };
 
 &button_default {
@@ -215,4 +240,14 @@
 		drive-strength = <8>;
 		bias-pull-up;
 	};
+
+	gpio_i2c_default: gpio_i2c_default {
+        i2c_pins_config {
+            pins = "gpio18", "gpio19";
+            function = "gpio";
+            drive-strength = <2>;
+            bias-pull-up;
+			input-enable;
+        };
+    };
 };
