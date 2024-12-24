@@ -10,7 +10,7 @@ echo "nameserver 8.8.8.8" > /etc/resolv.conf
 apt update
 apt full-upgrade -y
 apt install -y apt-transport-https ca-certificates
-apt install -y initramfs-tools locales openssh-server systemd-timesyncd fake-hwclock zram-tools rmtfs qrtr-tools dnsmasq iptables nano network-manager gpiod i2c-tools
+apt install -y initramfs-tools locales openssh-server systemd-timesyncd fake-hwclock zram-tools rmtfs qrtr-tools dnsmasq iptables nano network-manager gpiod i2c-tools libi2c-dev libmosquitto-dev mosquitto mosquitto-clients libmicrohttpd-dev libjson-c-dev
 # apt install -y /tmp/openstick-utils.deb
 apt install -y /tmp/linux-image*.deb
 
