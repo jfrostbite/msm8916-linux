@@ -210,11 +210,12 @@
 
 &led_b {
 	gpios = <&tlmm 71 GPIO_ACTIVE_HIGH>;
+	linux,default-trigger = "panic";
 };
 
 &led_g {
 	gpios = <&tlmm 73 GPIO_ACTIVE_HIGH>;
-	linux,default-trigger = "panic";
+	linux,default-trigger = "phy0tx";
 };
 
 &led_r {
