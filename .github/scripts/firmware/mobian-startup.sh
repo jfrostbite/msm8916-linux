@@ -255,7 +255,7 @@ diagnose_network() {
   logger "Activating serial console"
   setup_serial_ttyMSM0
   logger "Activating AP"
-  setup_failsafe_ap
+  # setup_failsafe_ap
 }
 
 diagnose_modem() {
