@@ -82,7 +82,6 @@
 
 &usb {
 	extcon = <&usb_id>, <&usb_id>;
-
 	status = "okay";
 };
 

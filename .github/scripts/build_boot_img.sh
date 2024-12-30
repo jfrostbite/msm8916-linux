@@ -3,8 +3,8 @@
 DOWNLOAD_SERVER="images.linuxcontainers.org"
 DOWNLOAD_INDEX_PATH="/meta/1.0/index-system"
 DOWNLOAD_DISTRO="debian;bookworm;arm64;default"
-DEVICE="sp970"
-VENDOR="cj"
+DEVICE="mfx32"
+VENDOR="xx"
 DTB_FILE=msm8916-${VENDOR}-${DEVICE}.dtb
 RAMDISK_FILE=initrd.img
 
