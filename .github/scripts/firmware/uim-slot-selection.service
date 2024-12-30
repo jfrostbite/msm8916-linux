@@ -1,0 +1,13 @@
+[Unit]
+Description=UIM Slot Selection Service
+After=network.target rmtfs.service
+Before=ModemManager.service
+
+[Service]
+Type=oneshot
+ExecStart=/bin/bash -c "/usr/sbin/uim-slot-selection.sh &> /var/log/uim-slot-selection.log"
+RemainAfterExit=true
+
+[Install]
+WantedBy=multi-user.target
+

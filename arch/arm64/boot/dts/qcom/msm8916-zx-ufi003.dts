@@ -1,0 +1,134 @@
+// SPDX-License-Identifier: GPL-2.0-only
+
+/dts-v1/;
+
+#include "msm8916-ufi.dtsi"
+
+/ {
+ 	model = "UFI003 4G Modem Stick";
+ 	compatible = "zx,ufi003", "qcom,msm8916", "lk2nd,device";
+
+	usb_id: usb-id {
+		compatible = "linux,extcon-usb-gpio";
+		id-gpios = <&tlmm 110 GPIO_ACTIVE_HIGH>;
+		pinctrl-0 = <&usb_id_default>;
+		pinctrl-names = "default";
+	};
+};
+
+&cpu_opp_table {
+	opp-1094400000 {
+		opp-hz = /bits/ 64 <1094400000>;
+	};
+	opp-1152000000 {
+		opp-hz = /bits/ 64 <1152000000>;
+	};
+	opp-1209600000 {
+		opp-hz = /bits/ 64 <1209600000>;
+	};
+	opp-1248000000 {
+		opp-hz = /bits/ 64 <1248000000>;
+	};
+	opp-1363200000 {
+		opp-hz = /bits/ 64 <1363200000>;
+	};
+	opp-1401600000 {
+		opp-hz = /bits/ 64 <1401600000>;
+	};
+	opp-1497600000 {
+		opp-hz = /bits/ 64 <1497600000>;
+	};
+	opp-1593600000 {
+		opp-hz = /bits/ 64 <1593600000>;
+	};
+	opp-1689600000 {
+		opp-hz = /bits/ 64 <1689600000>;
+	};
+	opp-1785600000 {
+		opp-hz = /bits/ 64 <1785600000>;
+	};
+	opp-1881600000 {
+		opp-hz = /bits/ 64 <1881600000>;
+	};
+	opp-1977600000 {
+		opp-hz = /bits/ 64 <1977600000>;
+	};
+	opp-2073600000 {
+		opp-hz = /bits/ 64 <2073600000>;
+	};
+};
+
+&button_restart {
+	gpios = <&tlmm 37 GPIO_ACTIVE_LOW>;
+};
+
+&led_b {
+	gpios = <&tlmm 20 GPIO_ACTIVE_HIGH>;
+};
+
+&led_g {
+	gpios = <&tlmm 21 GPIO_ACTIVE_HIGH>;
+};
+
+&led_r {
+	gpios = <&tlmm 22 GPIO_ACTIVE_HIGH>;
+	linux,default-trigger = "mmc0";
+};
+
+&mpss {
+	pinctrl-0 = <&sim_ctrl_default>;
+	pinctrl-names = "default";
+};
+
+&usb {
+	extcon = <&usb_id>, <&usb_id>;
+
+	status = "okay";
+};
+
+&usb_hs_phy {
+	extcon = <&usb_id>;
+};
+
+&button_default {
+	pins = "gpio37";
+	bias-pull-up;
+};
+
+&gpio_leds_default {
+	pins = "gpio20", "gpio21", "gpio22";
+};
+
+/* This selects the external SIM card slot by default */
+&tlmm {
+	sim_ctrl_default: sim-ctrl-default-state {
+		esim-sel-pins {
+			pins = "gpio0", "gpio3";
+			function = "gpio";
+			bias-disable;
+			output-low;
+		};
+
+		sim-en-pins {
+			pins = "gpio1";
+			function = "gpio";
+			bias-disable;
+			output-low;
+		};
+
+		sim-sel-pins {
+			pins = "gpio2";
+			function = "gpio";
+			bias-disable;
+			output-high;
+		};
+	};
+
+	usb_id_default: usb-id-default-state {
+		pins = "gpio110";
+		function = "gpio";
+
+		drive-strength = <8>;
+		bias-pull-up;
+	};
+};

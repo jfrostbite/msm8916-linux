@@ -25,6 +25,13 @@ static const struct pll_freq_tbl a53pll_freq[] = {
 	{ 1248000000, 65, 0x0, 0x1, 0 },
 	{ 1363200000, 71, 0x0, 0x1, 0 },
 	{ 1401600000, 73, 0x0, 0x1, 0 },
+	{ 1497600000, 78, 0x0, 0x1, 0 },
+	{ 1593600000, 83, 0x0, 0x1, 0 },
+	{ 1689600000, 88, 0x0, 0x1, 0 },
+	{ 1785600000, 93, 0x0, 0x1, 0 },
+	{ 1881600000, 98, 0x0, 0x1, 0 },
+	{ 1977600000, 103, 0x0, 0x1, 0 },
+	{ 2073600000, 108, 0x0, 0x1, 0 },
 	{ }
 };
 
@@ -151,7 +158,6 @@ static int qcom_a53pll_probe(struct platform_device *pdev)
 }
 
 static const struct of_device_id qcom_a53pll_match_table[] = {
-	{ .compatible = "qcom,msm8226-a7pll" },
 	{ .compatible = "qcom,msm8916-a53pll" },
 	{ .compatible = "qcom,msm8939-a53pll" },
 	{ }
