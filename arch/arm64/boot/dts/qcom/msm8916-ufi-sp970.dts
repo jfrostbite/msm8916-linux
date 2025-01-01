@@ -6,7 +6,7 @@
 
 / {
  	model = "SP970 4G Modem Stick";
- 	compatible = "cj,sp970", "qcom,msm8916", "lk2nd,device";
+ 	compatible = "ufi,sp970", "qcom,msm8916", "lk2nd,device";
 
 	usb_id: usb-id {
 		compatible = "linux,extcon-usb-gpio";

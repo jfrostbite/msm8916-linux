@@ -1,12 +1,19 @@
 #!/bin/bash
 
+# 检查是否传入了 DEVICE 参数
+if [ -z "$1" ]; then
+  echo "Usage: $0 <device>"
+  exit 1
+fi
+
 # Constants
 DOWNLOAD_SERVER="images.linuxcontainers.org"
 DOWNLOAD_INDEX_PATH="/meta/1.0/index-system"
 DOWNLOAD_DISTRO="debian;bookworm;arm64;default"
 DIST=bookworm
-DEVICE="mfx32"
-VENDOR="xx"
+DEVICE="$1"
+export DEVICE_NAME="$DEVICE"
+VENDOR="ufi"
 DTB_FILE="msm8916-${VENDOR}-${DEVICE}.dtb"
 CMDLINE="earlycon console=tty0 console=ttyMSM0,115200 root=PARTLABEL=system rw"
 

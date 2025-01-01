@@ -3,11 +3,11 @@
 /dts-v1/;
 
 #include "msm8916-ufi.dtsi"
-#include "msm8916-memory-exp.dtsi"
+#include "msm8916-modem-qdsp6.dtsi"
 
 / {
  	model = "mfx32 4G Modem Stick";
- 	compatible = "xx,mfx32", "qcom,msm8916", "lk2nd,device";
+ 	compatible = "ufi,mfx32", "qcom,msm8916", "lk2nd,device";
 
 	usb_id: usb-id {
 		compatible = "linux,extcon-usb-gpio";
@@ -221,6 +221,10 @@
 &led_r {
 	gpios = <&tlmm 72 GPIO_ACTIVE_HIGH>;
 //	linux,default-trigger = "heartbeat";
+};
+
+&sdhc_2 {
+	status = "okay";
 };
 
 &button_default {

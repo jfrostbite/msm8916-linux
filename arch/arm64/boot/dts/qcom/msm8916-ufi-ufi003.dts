@@ -6,7 +6,7 @@
 
 / {
  	model = "UFI003 4G Modem Stick";
- 	compatible = "zx,ufi003", "qcom,msm8916", "lk2nd,device";
+ 	compatible = "ufi,ufi003", "qcom,msm8916", "lk2nd,device";
 
 	usb_id: usb-id {
 		compatible = "linux,extcon-usb-gpio";

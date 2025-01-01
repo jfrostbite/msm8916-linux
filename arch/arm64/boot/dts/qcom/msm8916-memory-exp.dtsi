@@ -49,3 +49,7 @@
 &pm8916_codec {
 	status = "disabled";
 };
+
+&sound {
+	status = "disabled";
+};

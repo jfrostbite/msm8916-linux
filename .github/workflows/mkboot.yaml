@@ -15,7 +15,7 @@ jobs:
 
       - name: Download kernel
         run: |
-          mkdir artifacts && cp .github/scripts/deb/*.deb artifacts/
+          mkdir artifacts
 
       - name: Build Kernel
         run: |

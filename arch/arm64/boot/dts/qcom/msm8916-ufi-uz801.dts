@@ -6,7 +6,7 @@
 
 / {
 	model = "uz801 4G Modem Stick";
-	compatible = "alk,uz801", "qcom,msm8916";
+	compatible = "ufi,uz801", "qcom,msm8916", "lk2nd,device";
 };
 
 &cpu_opp_table {

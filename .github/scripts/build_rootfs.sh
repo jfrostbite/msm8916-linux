@@ -1,12 +1,18 @@
 #!/bin/bash
 
-DIST=bookworm
-DEVICE="mfx32"
+# 检查是否传入了 DEVICE 参数
+if [ -z "$1" ]; then
+  echo "Usage: $0 <device>"
+  exit 1
+fi
 
+DIST=bookworm
+DEVICE="$1"
+export DEVICE_NAME="$DEVICE"
 mkdir debian build
 debootstrap --arch=arm64 --foreign $DIST debian https://deb.debian.org/debian/
 LANG=C LANGUAGE=C LC_ALL=C chroot debian /debootstrap/debootstrap --second-stage
-cp -r ../../artifacts/*.deb deb/openstick*.deb chroot.sh firmware/ debian/tmp/
+cp -r ../../artifacts/*.deb chroot.sh firmware/ debian/tmp/
 chmod +x debian/tmp/chroot.sh
 mount --bind /proc debian/proc
 mount --bind /dev debian/dev

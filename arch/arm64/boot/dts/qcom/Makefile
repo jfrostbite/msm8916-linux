@@ -71,6 +71,7 @@ dtb-$(CONFIG_ARCH_QCOM)	+= msm8916-wingtech-wt86528.dtb
 dtb-$(CONFIG_ARCH_QCOM)	+= msm8916-wingtech-wt88047.dtb
 dtb-$(CONFIG_ARCH_QCOM)	+= msm8916-yiming-uz801v3.dtb
 dtb-$(CONFIG_ARCH_QCOM)	+= msm8916-ufi-mfx32.dtb
+dtb-$(CONFIG_ARCH_QCOM)	+= msm8916-ufi-mfx32-boiler.dtb
 dtb-$(CONFIG_ARCH_QCOM)	+= msm8916-ufi-ufi003.dtb
 dtb-$(CONFIG_ARCH_QCOM)	+= msm8916-ufi-uz801.dtb
 dtb-$(CONFIG_ARCH_QCOM)	+= msm8916-ufi-sp970.dtb

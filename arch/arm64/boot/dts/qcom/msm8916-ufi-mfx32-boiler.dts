@@ -1,0 +1,11 @@
+﻿// SPDX-License-Identifier: GPL-2.0-only
+
+/dts-v1/;
+
+#include "msm8916-ufi-mfx32.dts"
+#include "msm8916-memory-exp.dtsi"
+
+/ {
+	model = "UFI MFX32 Boiler";
+	compatible = "ufi,mfx32-boiler", "qcom,msm8916", "lk2nd,device";
+};

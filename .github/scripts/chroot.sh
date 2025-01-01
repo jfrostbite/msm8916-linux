@@ -1,8 +1,11 @@
 #!/bin/bash
 
 LANG_TARGET=en_US.UTF-8
-PASSWORD=adminmfx32
-NAME=mfx32
+
+NAME="${DEVICE_NAME}"
+PASSWORD="admin$NAME"
+
+echo "Usage: $NAME ==="
 
 rm /etc/resolv.conf
 echo "nameserver 8.8.8.8" > /etc/resolv.conf
@@ -10,8 +13,11 @@ echo "nameserver 8.8.8.8" > /etc/resolv.conf
 apt update
 apt full-upgrade -y
 apt install -y apt-transport-https ca-certificates
-apt install -y initramfs-tools locales openssh-server systemd-timesyncd fake-hwclock zram-tools rmtfs qrtr-tools dnsmasq iptables nano network-manager gpiod i2c-tools libi2c-dev libmosquitto-dev mosquitto mosquitto-clients libmicrohttpd-dev libjson-c-dev
-# apt install -y /tmp/openstick-utils.deb
+apt install -y initramfs-tools locales openssh-server systemd-timesyncd fake-hwclock zram-tools rmtfs qrtr-tools dnsmasq iptables nano network-manager
+#加个逻辑，如果NAME==mfx32-boiler 则安装 gpiod i2c-tools libi2c-dev libmosquitto-dev mosquitto mosquitto-clients libmicrohttpd-dev libjson-c-dev
+if [ "$NAME" == "mfx32-boiler" ]; then
+    apt install -y gpiod i2c-tools libi2c-dev libmosquitto-dev mosquitto mosquitto-clients libmicrohttpd-dev libjson-c-dev
+fi
 apt install -y /tmp/linux-image*.deb
 
 mkdir -p /lib/firmware/msm-firmware-loader
@@ -24,13 +30,11 @@ chmod +x /tmp/firmware/gc
 chmod +x /tmp/firmware/adbd
 chmod +x /tmp/firmware/run-iptables
 chmod +x /tmp/firmware/uim-slot-selection.sh
-chmod +x /tmp/firmware/monitor-mfx32-modem.sh
 cp /tmp/firmware/msm-firmware-loader.sh /usr/sbin/
 cp /tmp/firmware/mobian-usb-gadget /usr/sbin/
 cp /tmp/firmware/mobian-setup-usb-network /usr/sbin/
 cp /tmp/firmware/mobian-expandisk-startup.sh /usr/sbin/
 cp /tmp/firmware/mobian-startup.sh /usr/sbin/
-cp /tmp/firmware/monitor-mfx32-modem.sh /usr/sbin/
 cp /tmp/firmware/gc /usr/bin/
 cp /tmp/firmware/adbd /usr/bin/
 
@@ -41,7 +45,6 @@ cp /tmp/firmware/mobian-ssh-keygen.service /etc/systemd/system/
 cp /tmp/firmware/mobian-expandisk-startup.service /etc/systemd/system/
 cp /tmp/firmware/mobian-startup.service /etc/systemd/system/
 cp /tmp/firmware/mobian-startup.timer /etc/systemd/system/
-cp /tmp/firmware/monitor-mfx32-modem.service /etc/systemd/system/
 cp -r /tmp/firmware/qcom/ /lib/firmware/
 
 if [ ! -e /etc/dnsmasq.d ]; then
@@ -54,9 +57,12 @@ fi
 cp /tmp/firmware/run-iptables /etc/network/if-up.d/
 cp /tmp/firmware/firewall.conf /etc/firewall.conf
 
+#如果NAME==sp970 则安装 uim-slot-selection
+if [ "$NAME" == "sp970" ]; then
+    cp /tmp/firmware/uim-slot-selection.sh /usr/sbin/
+    cp /tmp/firmware/uim-slot-selection.service /etc/systemd/system/
+fi
 
-cp /tmp/firmware/uim-slot-selection.sh /usr/sbin/
-cp /tmp/firmware/uim-slot-selection.service /etc/systemd/system/
 
 sed -i -e "s/# $LANG_TARGET UTF-8/$LANG_TARGET UTF-8/" /etc/locale.gen
 dpkg-reconfigure --frontend=noninteractive locales
@@ -101,7 +107,10 @@ systemctl enable mobian-setup-usb-network
 systemctl enable mobian-ssh-keygen
 systemctl enable mobian-expandisk-startup
 systemctl enable mobian-startup.timer
-# systemctl enable monitor-mfx32-modem
+#如果NAME==sp970 则安装 uim-slot-selection
+if [ "$NAME" == "sp970" ]; then
+    systemctl enable uim-slot-selection
+fi
 
 update-alternatives --set iptables /usr/sbin/iptables-legacy
 update-alternatives --set ip6tables /usr/sbin/ip6tables-legacy
