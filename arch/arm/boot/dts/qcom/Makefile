@@ -1,6 +1,7 @@
 # SPDX-License-Identifier: GPL-2.0
 dtb-$(CONFIG_ARCH_QCOM) += \
-	msm8226-motorola-falcon.dtb \
+	qcom-mdm9607-mtp.dtb \
+	# msm8226-motorola-falcon.dtb \
 	qcom-apq8016-sbc.dtb \
 	qcom-apq8026-asus-sparrow.dtb \
 	qcom-apq8026-huawei-sturgeon.dtb \
@@ -68,3 +69,4 @@ dtb-$(CONFIG_ARCH_QCOM) += \
 	qcom-sdx55-t55.dtb \
 	qcom-sdx55-telit-fn980-tlb.dtb \
 	qcom-sdx65-mtp.dtb
+

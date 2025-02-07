@@ -58,7 +58,7 @@
 
 &led_b {
 	gpios = <&tlmm 28 GPIO_ACTIVE_HIGH>;
-	linux,default-trigger = "phy0rx";
+	linux,default-trigger = "mmc0";
 };
 
 &led_g {
@@ -67,7 +67,7 @@
 
 &led_r {
 	gpios = <&tlmm 9 GPIO_ACTIVE_HIGH>;
-	linux,default-trigger = "mmc0";
+	linux,default-trigger = "panic";
 };
 
 &mpss {
