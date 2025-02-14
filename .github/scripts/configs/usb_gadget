@@ -1,0 +1,34 @@
+#!/sbin/openrc-run
+
+name="usb_gadget"
+description="USB Gadget setup for ADB and RNDIS"
+
+depend() {
+    need net localmount
+    after modules udev dbus networkmanager chronyd modemmanager
+    use logger
+}
+
+start() {
+    ebegin "Running USB Gadget setup"
+    /usr/local/bin/adbd &
+    sleep 1
+    UDC=$(ls -1 /sys/class/udc | head -n 1)
+    [ -n "$UDC" ] && echo "$UDC" > /sys/kernel/config/usb_gadget/g1/UDC
+    
+    eend $?
+}
+
+stop() {
+    ebegin "Stopping USB gadget"
+    # 停用USB gadget
+    echo "" > /sys/kernel/config/usb_gadget/g1/UDC
+    
+    # 停止ADB
+    killall adbd 2>/dev/null
+    
+    # 卸载functionfs
+    umount /dev/usb-ffs/adb 2>/dev/null
+    
+    eend $?
+} 
