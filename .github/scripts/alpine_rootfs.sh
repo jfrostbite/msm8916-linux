@@ -90,7 +90,12 @@ apk add --no-cache \
     wpa_supplicant \
     e2fsprogs-extra \
     openssh-sftp-server \
+    zram-init \
     shadow
+
+if [ "$NAME" == "sp970" ]; then
+    apk add --no-cache msm-modem-uim-selection
+fi
 "
 
 # setup alpine
@@ -129,6 +134,7 @@ rc-update add chronyd default
 rc-update add modemmanager default
 rc-update add networkmanager default
 rc-update add dnsmasq default
+rc-update add zram-init default
 rc-update add usb_gadget default
 "
 
@@ -149,6 +155,10 @@ EOF
 sed -i '/^tty/ s/^/#/' ${CHROOT}/etc/inittab
 echo 'ttyMSM0::respawn:/bin/busybox getty -L -n -l /root/login.sh ttyMSM0 115200' >> ${CHROOT}/etc/inittab
 
+# setup zram
+sed -i "s/num_devices=[0-9]*/num_devices=1/" ${CHROOT}/etc/conf.d/zram-init
+
+# setup hostname
 sed -i "/localhost/ s/$/ ${NAME}/" ${CHROOT}/etc/hosts
 
 # setup NetworkManager
@@ -160,6 +170,7 @@ sed -i '/\[main\]/a dns=dnsmasq' ${CHROOT}/etc/NetworkManager/NetworkManager.con
 mkdir -p ${CHROOT}/etc/dnsmasq.d
 cp configs/dnsmasq.conf ${CHROOT}/etc/dnsmasq.d/
 
+# setup extlinux
 mkdir -p ${CHROOT}/boot/extlinux
 cp configs/extlinux.conf ${CHROOT}/boot/extlinux
 sed -i 's/DEVICE/'$NAME'/g' ${CHROOT}/boot/extlinux/extlinux.conf
