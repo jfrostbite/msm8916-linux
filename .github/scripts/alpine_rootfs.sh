@@ -170,6 +170,10 @@ sed -i '/\[main\]/a dns=dnsmasq' ${CHROOT}/etc/NetworkManager/NetworkManager.con
 mkdir -p ${CHROOT}/etc/dnsmasq.d
 cp configs/dnsmasq.conf ${CHROOT}/etc/dnsmasq.d/
 
+# setup rules-save
+mkdir -p ${CHROOT}/etc/iptables
+cp configs/rules-save ${CHROOT}/etc/iptables/
+
 # setup extlinux
 mkdir -p ${CHROOT}/boot/extlinux
 cp configs/extlinux.conf ${CHROOT}/boot/extlinux
