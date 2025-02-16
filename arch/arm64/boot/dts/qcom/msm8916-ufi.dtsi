@@ -113,11 +113,19 @@
 };
 
 &venus {
-	status = "okay";
+	status = "disabled";
 };
 
 &venus_mem {
-	status = "okay";
+	status = "disabled";
+};
+
+&pm8916_codec {
+	status = "disabled";
+};
+
+&sound {
+	status = "disabled";
 };
 
 &wcnss {
