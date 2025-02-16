@@ -72,10 +72,6 @@ chmod +x ${CHROOT}/usr/local/bin/usb_gadget_setup.sh
 cp configs/usb_gadget ${CHROOT}/etc/init.d/usb_gadget
 chmod +x ${CHROOT}/etc/init.d/usb_gadget
 
-# setup rules-save
-mkdir -p ${CHROOT}/etc/iptables
-cp configs/rules.v4 ${CHROOT}/etc/iptables/
-
 # install apps
 chroot ${CHROOT} ash -l -c "
 apk add --no-cache --allow-untrusted postmarketos-keys
@@ -124,8 +120,6 @@ chmod +x /root/login.sh
 
 setup-hostname ${NAME}
 setup-timezone -z Asia/Shanghai
-
-iptables-restore < /etc/iptables/rules.v4
 
 rc-update add alpine-startup default
 rc-update add devfs sysinit
@@ -189,6 +183,10 @@ cp configs/dnsmasq.conf ${CHROOT}/etc/dnsmasq.d/
 mkdir -p ${CHROOT}/boot/extlinux
 cp configs/extlinux.conf ${CHROOT}/boot/extlinux
 sed -i 's/DEVICE/'$NAME'/g' ${CHROOT}/boot/extlinux/extlinux.conf
+
+# setup sysctl
+mkdir -p ${CHROOT}/etc/sysctl.d
+cp configs/sysctl.conf ${CHROOT}/etc/sysctl.d/
 
 # copy custom dtb's
 mkdir -p ${CHROOT}/boot/dtbs/qcom
