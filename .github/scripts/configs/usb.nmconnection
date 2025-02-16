@@ -1,0 +1,11 @@
+[connection]
+id=usb
+uuid=e00e027f-7d86-43e8-9d87-547738069455
+type=ethernet
+controller=6cfbdb63-d687-42bf-a27c-c46fe4b10c9a
+interface-name=usb0
+port-type=bridge
+
+[ethernet]
+
+[bridge-port]
