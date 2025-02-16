@@ -12,7 +12,7 @@ depend() {
 start() {
     ebegin "Running USB Gadget setup"
     /usr/local/bin/adbd &
-    sleep 2
+    sleep 5
     UDC=$(ls -1 /sys/class/udc | head -n 1)
     [ -n "$UDC" ] && echo "$UDC" > /sys/kernel/config/usb_gadget/g1/UDC
     
