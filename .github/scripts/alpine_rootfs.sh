@@ -52,6 +52,14 @@ chmod +x ${CHROOT}/usr/local/bin/alpine-startup.sh
 cp configs/alpine-startup ${CHROOT}/etc/init.d/alpine-startup
 chmod +x ${CHROOT}/etc/init.d/alpine-startup
 
+# install fake-hwclock
+cp configs/fake-hwclock ${CHROOT}/usr/local/bin/
+chmod +x ${CHROOT}/usr/local/bin/fake-hwclock
+
+# install service
+cp configs/fakehwclock ${CHROOT}/etc/init.d/fake-hwclock
+chmod +x ${CHROOT}/etc/init.d/fake-hwclock
+
 # copy adbd
 cp configs/adbd ${CHROOT}/usr/local/bin/
 chmod +x ${CHROOT}/usr/local/bin/adbd
@@ -63,6 +71,10 @@ chmod +x ${CHROOT}/usr/local/bin/usb_gadget_setup.sh
 # install service
 cp configs/usb_gadget ${CHROOT}/etc/init.d/usb_gadget
 chmod +x ${CHROOT}/etc/init.d/usb_gadget
+
+# setup rules-save
+mkdir -p ${CHROOT}/etc/iptables
+cp configs/rules.v4 ${CHROOT}/etc/iptables/
 
 # install apps
 chroot ${CHROOT} ash -l -c "
@@ -113,6 +125,8 @@ chmod +x /root/login.sh
 setup-hostname ${NAME}
 setup-timezone -z Asia/Shanghai
 
+iptables-restore < /etc/iptables/rules.v4
+
 rc-update add alpine-startup default
 rc-update add devfs sysinit
 rc-update add dmesg sysinit
@@ -136,6 +150,7 @@ rc-update add networkmanager default
 rc-update add dnsmasq default
 rc-update add zram-init default
 rc-update add usb_gadget default
+rc-update add fake-hwclock default
 "
 
 # add sudoers 
@@ -169,10 +184,6 @@ sed -i '/\[main\]/a dns=dnsmasq' ${CHROOT}/etc/NetworkManager/NetworkManager.con
 # setup dnsmasq
 mkdir -p ${CHROOT}/etc/dnsmasq.d
 cp configs/dnsmasq.conf ${CHROOT}/etc/dnsmasq.d/
-
-# setup rules-save
-mkdir -p ${CHROOT}/etc/iptables
-cp configs/rules-save ${CHROOT}/etc/iptables/
 
 # setup extlinux
 mkdir -p ${CHROOT}/boot/extlinux
