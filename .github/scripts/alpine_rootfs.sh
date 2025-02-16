@@ -160,6 +160,12 @@ cat << EOF > ${CHROOT}/etc/udev/rules.d/99-nm-usb0.rules
 SUBSYSTEM=="net", ACTION=="add|change|move", ENV{DEVTYPE}=="gadget", ENV{NM_UNMANAGED}="0"
 EOF
 
+# add ip forwarding
+cat << EOF > ${CHROOT}/etc/sysctl.d/local.conf
+net.ipv4.ip_forward = 1
+net.ipv6.conf.all.forwarding = 1
+EOF
+
 # enable autologin on console
 sed -i '/^tty/ s/^/#/' ${CHROOT}/etc/inittab
 echo 'ttyMSM0::respawn:/bin/busybox getty -L -n -l /root/login.sh ttyMSM0 115200' >> ${CHROOT}/etc/inittab
@@ -183,10 +189,6 @@ cp configs/dnsmasq.conf ${CHROOT}/etc/dnsmasq.d/
 mkdir -p ${CHROOT}/boot/extlinux
 cp configs/extlinux.conf ${CHROOT}/boot/extlinux
 sed -i 's/DEVICE/'$NAME'/g' ${CHROOT}/boot/extlinux/extlinux.conf
-
-# setup sysctl
-mkdir -p ${CHROOT}/etc/sysctl.d
-cp configs/sysctl.conf ${CHROOT}/etc/sysctl.d/
 
 # copy custom dtb's
 mkdir -p ${CHROOT}/boot/dtbs/qcom
