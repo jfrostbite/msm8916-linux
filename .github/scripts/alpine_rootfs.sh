@@ -179,7 +179,6 @@ sed -i "/localhost/ s/$/ ${NAME}/" ${CHROOT}/etc/hosts
 # setup NetworkManager
 cp configs/*.nmconnection ${CHROOT}/etc/NetworkManager/system-connections
 chmod 0600 ${CHROOT}/etc/NetworkManager/system-connections/*
-sed -i '/\[main\]/a dns=dnsmasq' ${CHROOT}/etc/NetworkManager/NetworkManager.conf
 
 # setup dnsmasq
 mkdir -p ${CHROOT}/etc/dnsmasq.d

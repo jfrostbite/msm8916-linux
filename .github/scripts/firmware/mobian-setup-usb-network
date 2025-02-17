@@ -2,7 +2,7 @@
 
 if [ ! -e /etc/NetworkManager/system-connections/usb.nmconnection ]; then
     # Create network connection
-    nmcli c add type bridge ifname nm-bridge con-name br0 ipv4.method manual ipv4.addresses 192.168.100.1/24 ipv4.gateway '' ipv4.dns ''
+    nmcli c add type bridge ifname nm-bridge con-name br0 ipv4.method manual ipv4.addresses 192.168.100.1/24 ipv4.gateway '' ipv4.dns '223.5.5.5'
     nmcli c add type bridge-slave ifname usb0 con-name usb master br0 autoconnect yes
 
     # Set priorities so it doesn't take precedence over WiFi/mobile connections
