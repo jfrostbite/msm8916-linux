@@ -5,16 +5,28 @@ description="USB Gadget setup for ADB and RNDIS"
 
 depend() {
     need net localmount
-    after modules udev dbus networkmanager chronyd modemmanager
-    use logger
+    after modules udev
 }
 
 start() {
     ebegin "Running USB Gadget setup"
     /usr/local/bin/adbd &
-    sleep 3
+    for i in {1..10}; do
+        if pgrep -x "adbd" > /dev/null; then
+            break
+        fi
+        sleep 3
+    done
+    
     UDC=$(ls -1 /sys/class/udc | head -n 1)
-    [ -n "$UDC" ] && echo "$UDC" > /sys/kernel/config/usb_gadget/g1/UDC
+    
+    for i in {1..10}; do
+        echo "$UDC" > /sys/kernel/config/usb_gadget/g1/UDC
+        if [ -s /sys/kernel/config/usb_gadget/g1/UDC ]; then
+            break
+        fi
+        sleep 3
+    done
     
     eend $?
 }
@@ -25,7 +37,7 @@ stop() {
     echo "" > /sys/kernel/config/usb_gadget/g1/UDC
     
     # Stop ADB
-    killall adbd 2>/dev/null
+    pkill adbd 2>/dev/null
     
     # Unmount functionfs
     umount /dev/usb-ffs/adb 2>/dev/null
