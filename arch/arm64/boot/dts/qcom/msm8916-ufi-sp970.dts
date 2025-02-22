@@ -49,7 +49,7 @@
 
 &led_b {
 	gpios = <&tlmm 28 GPIO_ACTIVE_HIGH>;
-	linux,default-trigger = "phy0rx";
+	linux,default-trigger = "none";
 };
 
 &led_g {
