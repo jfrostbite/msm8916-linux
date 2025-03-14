@@ -149,7 +149,7 @@ rc-update add fake-hwclock default
 
 # add sudoers 
 mkdir -p ${CHROOT}/etc/sudoers.d
-echo '${NAME} ALL=(ALL:ALL) NOPASSWD: ALL' > ${CHROOT}/etc/sudoers.d/${NAME}
+echo "${NAME} ALL=(ALL:ALL) ALL" > ${CHROOT}/etc/sudoers.d/${NAME}
 
 # add udev rules
 cat << EOF > ${CHROOT}/etc/udev/rules.d/10-udc.rules
