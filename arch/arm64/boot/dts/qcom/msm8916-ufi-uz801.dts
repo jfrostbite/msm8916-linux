@@ -57,17 +57,17 @@
 
 &led_b {
 	gpios = <&tlmm 6 GPIO_ACTIVE_HIGH>;
-	linux,default-trigger = "default";
+	linux,default-trigger = "none";
 };
 
 &led_g {
 	gpios = <&tlmm 8 GPIO_ACTIVE_HIGH>;
-	linux,default-trigger = "phy0rx";
+	linux,default-trigger = "mmc0";
 };
 
 &led_r {
 	gpios = <&tlmm 7 GPIO_ACTIVE_HIGH>;
-	linux,default-trigger = "heartbeat";
+	linux,default-trigger = "panic";
 };
 
 &button_default {
