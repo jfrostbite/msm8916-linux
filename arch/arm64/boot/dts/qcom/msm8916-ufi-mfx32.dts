@@ -210,17 +210,17 @@
 
 &led_b {
 	gpios = <&tlmm 71 GPIO_ACTIVE_HIGH>;
-	linux,default-trigger = "panic";
+	linux,default-trigger = "none";
 };
 
 &led_g {
 	gpios = <&tlmm 73 GPIO_ACTIVE_HIGH>;
-	linux,default-trigger = "phy0tx";
+	linux,default-trigger = "mmc0";
 };
 
 &led_r {
 	gpios = <&tlmm 72 GPIO_ACTIVE_HIGH>;
-//	linux,default-trigger = "heartbeat";
+	linux,default-trigger = "panic";
 };
 
 &sdhc_2 {
