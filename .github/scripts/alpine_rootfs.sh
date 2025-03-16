@@ -7,9 +7,9 @@ else
 fi
 export TMPDIR=${TMPDIR=/root/tmp}
 export CHROOT=${CHROOT=${TMPDIR}/rootfs}
-export RELEASE=${RELEASE=latest-stable}
+export RELEASE=${RELEASE=edge}
 export PMOS_RELEASE=${PMOS_RELEASE=master}
-export MIRROR=${MIRROR=http://dl-cdn.alpinelinux.org/alpine}
+export MIRROR=${MIRROR=http://mirrors.hust.edu.cn/alpine}
 export PMOS_MIRROR=${PMOS_MIRROR=http://mirror.postmarketos.org/postmarketos}
 
 PASSWORD="admin$NAME"
@@ -186,11 +186,6 @@ echo 'ttyMSM0::respawn:/bin/busybox getty -L -n -l /root/login.sh ttyMSM0 115200
 
 # setup zram
 sed -i "s/num_devices=[0-9]*/num_devices=1/" ${CHROOT}/etc/conf.d/zram-init
-
-# setup hostname
-if [ "$NAME" != "ufi" ]; then
-    sed -i "/localhost/ s/$/ ${NAME}/" ${CHROOT}/etc/hosts
-fi
 
 # setup NetworkManager
 cp configs/*.nmconnection ${CHROOT}/etc/NetworkManager/system-connections
