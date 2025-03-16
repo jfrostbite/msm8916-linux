@@ -16,9 +16,12 @@ echo 0x9024 > idProduct
 
 # 设备描述符字符串
 mkdir -p strings/0x409
-echo "msm8916" > strings/0x409/serialnumber
+SERIAL_NUMBER=$(cat /proc/device-tree/serial-number 2>/dev/null || echo "msm8916")
+MODEL=$(cat /proc/device-tree/model 2>/dev/null || echo "UFI")
+
+echo $SERIAL_NUMBER > strings/0x409/serialnumber
 echo "Qualcomm, Inc" > strings/0x409/manufacturer
-echo "MSM8916" > strings/0x409/product
+echo $MODEL > strings/0x409/product
 
 # 创建配置
 mkdir -p configs/c.1
