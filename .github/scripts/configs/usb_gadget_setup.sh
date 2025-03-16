@@ -29,6 +29,29 @@ echo 500 > configs/c.1/MaxPower
 # 创建RNDIS function
 mkdir -p functions/rndis.0
 
+# 固定rndis的MAC地址
+if [ -f /etc/rndis_mac.conf ]; then
+    MAC_ADDR_DEV=$(sed -n '1p' /etc/rndis_mac.conf)
+    MAC_ADDR_HOST=$(sed -n '2p' /etc/rndis_mac.conf)
+    if [ -z "$MAC_ADDR_DEV" ]; then
+        MAC_ADDR_DEV=$(cat functions/rndis.0/dev_addr)
+        echo $MAC_ADDR_DEV > /etc/rndis_mac.conf
+    else
+        echo $MAC_ADDR_DEV > functions/rndis.0/dev_addr
+    fi
+    if [ -z "$MAC_ADDR_HOST" ]; then
+        MAC_ADDR_HOST=$(cat functions/rndis.0/host_addr)
+        echo $MAC_ADDR_HOST >> /etc/rndis_mac.conf
+    else
+        echo $MAC_ADDR_HOST > functions/rndis.0/host_addr
+    fi
+else
+    MAC_ADDR_DEV=$(cat functions/rndis.0/dev_addr)
+    MAC_ADDR_HOST=$(cat functions/rndis.0/host_addr)
+    echo $MAC_ADDR_DEV > /etc/rndis_mac.conf
+    echo $MAC_ADDR_HOST >> /etc/rndis_mac.conf
+fi
+
 # 创建ADB function
 mkdir -p functions/ffs.adb
 

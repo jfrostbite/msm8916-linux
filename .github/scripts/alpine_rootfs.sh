@@ -1,7 +1,9 @@
 #!/bin/sh -e
 if [ -z "$1" ]; then
-  echo "Usage: $0 <device>"
-  exit 1
+    echo "No device name provided. Using default: ufi"
+    NAME="ufi"
+else
+    NAME="$1"
 fi
 export TMPDIR=${TMPDIR=/root/tmp}
 export CHROOT=${CHROOT=${TMPDIR}/rootfs}
@@ -10,7 +12,6 @@ export PMOS_RELEASE=${PMOS_RELEASE=master}
 export MIRROR=${MIRROR=http://dl-cdn.alpinelinux.org/alpine}
 export PMOS_MIRROR=${PMOS_MIRROR=http://mirror.postmarketos.org/postmarketos}
 
-NAME="$1"
 PASSWORD="admin$NAME"
 
 if [ ! -f "../../arch/arm64/boot/Image.gz" ]; then
@@ -18,9 +19,16 @@ if [ ! -f "../../arch/arm64/boot/Image.gz" ]; then
     exit 1
 fi
 
-if [ ! -f "../../arch/arm64/boot/dts/qcom/msm8916-ufi-${NAME}.dtb" ]; then
-    echo "DTB file not found"
-    exit 1
+if [ "$NAME" = "ufi" ]; then
+    if [ -z "$(ls ../../arch/arm64/boot/dts/qcom/msm8916-ufi-*.dtb 2>/dev/null)" ]; then
+        echo "DTB file not found"
+        exit 1
+    fi
+else
+    if [ ! -f "../../arch/arm64/boot/dts/qcom/msm8916-ufi-${NAME}.dtb" ]; then
+        echo "DTB file not found"
+        exit 1
+    fi
 fi
 
 rm -rf ${CHROOT}
@@ -108,7 +116,9 @@ fi
 
 # setup alpine
 chroot ${CHROOT} ash -l -c "
-echo ${NAME}:${PASSWORD}::::/home/${NAME}:/bin/ash | newusers
+if [ "$NAME" != "ufi" ]; then
+    echo ${NAME}:${PASSWORD}::::/home/${NAME}:/bin/ash | newusers
+fi
 echo root:${PASSWORD} | chpasswd
 apk del shadow
 
@@ -118,7 +128,9 @@ exec /bin/login -f root
 EOL
 chmod +x /root/login.sh
 
-setup-hostname ${NAME}
+if [ "$NAME" != "ufi" ]; then
+    setup-hostname ${NAME}
+fi
 setup-timezone -z Asia/Shanghai
 
 rc-update add alpine-startup default
@@ -149,7 +161,9 @@ rc-update add fake-hwclock default
 
 # add sudoers 
 mkdir -p ${CHROOT}/etc/sudoers.d
-echo "${NAME} ALL=(ALL:ALL) ALL" > ${CHROOT}/etc/sudoers.d/${NAME}
+if [ "$NAME" != "ufi" ]; then
+    echo "${NAME} ALL=(ALL:ALL) ALL" > ${CHROOT}/etc/sudoers.d/${NAME}
+fi
 
 # add udev rules
 cat << EOF > ${CHROOT}/etc/udev/rules.d/10-udc.rules
@@ -174,7 +188,9 @@ echo 'ttyMSM0::respawn:/bin/busybox getty -L -n -l /root/login.sh ttyMSM0 115200
 sed -i "s/num_devices=[0-9]*/num_devices=1/" ${CHROOT}/etc/conf.d/zram-init
 
 # setup hostname
-sed -i "/localhost/ s/$/ ${NAME}/" ${CHROOT}/etc/hosts
+if [ "$NAME" != "ufi" ]; then
+    sed -i "/localhost/ s/$/ ${NAME}/" ${CHROOT}/etc/hosts
+fi
 
 # setup NetworkManager
 cp configs/*.nmconnection ${CHROOT}/etc/NetworkManager/system-connections
@@ -188,7 +204,11 @@ cp configs/dnsmasq.conf ${CHROOT}/etc/dnsmasq.d/
 # setup extlinux
 mkdir -p ${CHROOT}/boot/extlinux
 cp configs/extlinux.conf ${CHROOT}/boot/extlinux
-sed -i 's/DEVICE/'$NAME'/g' ${CHROOT}/boot/extlinux/extlinux.conf
+if [ "$NAME" = "ufi" ]; then
+    sed -i 's/{FDT}/fdtdir \/dtbs/g' ${CHROOT}/boot/extlinux/extlinux.conf
+else
+    sed -i 's/{FDT}/fdt \/dtbs\/qcom\/msm8916-ufi-'$NAME'.dtb/g' ${CHROOT}/boot/extlinux/extlinux.conf
+fi
 
 # copy custom dtb's
 mkdir -p ${CHROOT}/boot/dtbs/qcom

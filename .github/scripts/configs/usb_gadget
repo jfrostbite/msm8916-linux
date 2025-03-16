@@ -18,14 +18,25 @@ start() {
         sleep 3
     done
     
-    UDC=$(ls -1 /sys/class/udc | head -n 1)
+    for attempt in {1..3}; do
+        UDC=$(ls -1 /sys/class/udc | head -n 1)
+        if [ -n "$UDC" ]; then
+            break
+        fi
+        sleep 1
+    done
     
-    for i in {1..10}; do
+    if [ -z "$UDC" ]; then
+        eend 1
+        return 1
+    fi
+    
+    for i in {1..30}; do
         echo "$UDC" > /sys/kernel/config/usb_gadget/g1/UDC
         if [ -s /sys/kernel/config/usb_gadget/g1/UDC ]; then
             break
         fi
-        sleep 3
+        sleep 1
     done
     
     eend $?
