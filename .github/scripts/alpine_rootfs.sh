@@ -188,12 +188,8 @@ echo 'ttyMSM0::respawn:/bin/busybox getty -L -n -l /root/login.sh ttyMSM0 115200
 sed -i "s/num_devices=[0-9]*/num_devices=1/" ${CHROOT}/etc/conf.d/zram-init
 
 # setup NetworkManager
-mkdir -p ${CHROOT}/etc/NetworkManager/system-connections
 cp configs/*.nmconnection ${CHROOT}/etc/NetworkManager/system-connections
 chmod 0600 ${CHROOT}/etc/NetworkManager/system-connections/*
-if [ ! -f ${CHROOT}/etc/NetworkManager/NetworkManager.conf ]; then
-    touch ${CHROOT}/etc/NetworkManager/NetworkManager.conf
-fi
 sed -i '/\[main\]/a dns=dnsmasq' ${CHROOT}/etc/NetworkManager/NetworkManager.conf
 
 # setup dnsmasq
