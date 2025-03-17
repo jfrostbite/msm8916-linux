@@ -89,6 +89,7 @@ apk add --no-cache \
     dropbear \
     eudev \
     iptables \
+    nftables \
     modemmanager \
     msm-firmware-loader \
     networkmanager-cli \
@@ -165,6 +166,15 @@ if [ "$NAME" != "ufi" ]; then
     echo "${NAME} ALL=(ALL:ALL) ALL" > ${CHROOT}/etc/sudoers.d/${NAME}
 fi
 
+# add nftables rules
+mkdir -p ${CHROOT}/etc/iptables
+cp configs/ruleset.nft ${CHROOT}/etc/iptables/
+cat << EOF > ${CHROOT}/usr/local/bin/restore_nftables
+#!/bin/sh
+iptables-nft-restore < /etc/iptables/ruleset.nft
+EOF
+chmod +x ${CHROOT}/usr/local/bin/restore_nftables
+
 # add udev rules
 cat << EOF > ${CHROOT}/etc/udev/rules.d/10-udc.rules
 ACTION=="add", SUBSYSTEM=="udc", RUN+="/sbin/modprobe libcomposite", RUN+="/usr/local/bin/usb_gadget_setup.sh"
@@ -172,6 +182,10 @@ EOF
 
 cat << EOF > ${CHROOT}/etc/udev/rules.d/99-nm-usb0.rules
 SUBSYSTEM=="net", ACTION=="add|change|move", ENV{DEVTYPE}=="gadget", ENV{NM_UNMANAGED}="0"
+EOF
+
+cat << EOF > ${CHROOT}/etc/udev/rules.d/99-restore-nftables.rules
+SUBSYSTEM=="net", ACTION=="add|change", ENV{DEVTYPE}=="gadget", RUN+="/usr/local/bin/restore_nftables"
 EOF
 
 # add ip forwarding
