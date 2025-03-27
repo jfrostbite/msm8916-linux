@@ -5,7 +5,7 @@
 #include "msm8916-ufi.dtsi"
 
 / {
- 	model = "SP970 4G Modem Stick";
+ 	model = "SP970 4G Modem";
  	compatible = "ufi,sp970", "qcom,msm8916", "lk2nd,device";
 
 	usb_id: usb-id {

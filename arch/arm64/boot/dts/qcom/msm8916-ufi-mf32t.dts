@@ -6,8 +6,8 @@
 #include "msm8916-modem-qdsp6.dtsi"
 
 / {
- 	model = "MFX32 4G Modem";
- 	compatible = "ufi,mfx32", "qcom,msm8916", "lk2nd,device";
+ 	model = "MF32T 4G Modem";
+ 	compatible = "ufi,mf32t", "qcom,msm8916", "lk2nd,device";
 
 	usb_id: usb-id {
 		compatible = "linux,extcon-usb-gpio";
@@ -33,31 +33,6 @@
 			<3388000 8>, <3364000 7>, <3328000 6>, <3235000 5>,
 			<3174000 4>, <3096000 3>, <3062000 2>, <3035000 1>,
 			<3000000 0>;
-	};
-
-	i2c-gpio {
-		compatible = "i2c-gpio";
-		sda-gpios = <&tlmm 18 (GPIO_ACTIVE_HIGH | GPIO_OPEN_DRAIN)>;
-		scl-gpios = <&tlmm 19 (GPIO_ACTIVE_HIGH | GPIO_OPEN_DRAIN)>;
-
-		i2c-gpio,delay-us = <5>; /* ~50 kHz */
-		i2c-gpio,timeout-ms = <100>;
-		
-		i2c-gpio,udelay = <5>;
-
-		pinctrl-0 = <&gpio_i2c_default>;
-		pinctrl-names = "default";
-
-		#address-cells = <1>;
-		#size-cells = <0>;
-
-		status = "okay";
-
-		aht10@38 {
-			compatible = "aosong,aht10";
-			reg = <0x38>;
-			status = "okay";
-		};
 	};
 };
 
@@ -104,7 +79,7 @@
 };
 
 &button_restart {
-	gpios = <&tlmm 37 GPIO_ACTIVE_LOW>;
+	gpios = <&tlmm 34 GPIO_ACTIVE_LOW>;
 };
 
 &usb {
@@ -120,7 +95,7 @@
 	monitored-battery = <&battery>;
 	power-supplies = <&pm8916_charger>;
 
-	status = "disabled";
+	status = "okay";
 };
 
 &pm8916_charger {
@@ -129,54 +104,46 @@
 
 	monitored-battery = <&battery>;
 
-	status = "disabled";
+	status = "okay";
 };
 
 &leds {
 	status = "okay";
-	
-	ftest {
-		gpios = <&tlmm 32 GPIO_ACTIVE_HIGH>;
-		label = "ftest";
+
+	esim2_sel {
+		gpios = <&tlmm 51 GPIO_ACTIVE_HIGH>;
+		label = "esim2_sel";
 		linux,default-trigger = "none";
 		default-state = "keep";
 		retain-state-suspended;
 	};
 
-	esim1_en {
-		gpios = <&tlmm 119 GPIO_ACTIVE_HIGH>;
-		label = "esim1_en";
+	esim_sel {
+		gpios = <&tlmm 50 GPIO_ACTIVE_HIGH>;
+		label = "esim_sel";
+		linux,default-trigger = "none";
+		default-state = "keep";
+		retain-state-suspended;
+	};
+
+	sim_sel {
+		gpios = <&tlmm 49 GPIO_ACTIVE_HIGH>;
+		label = "sim_sel";
+		linux,default-trigger = "none";
+		default-state = "keep";
+		retain-state-suspended;
+	};
+
+	sim_en {
+		gpios = <&tlmm 24 GPIO_ACTIVE_HIGH>;
+		label = "sim_en";
 		linux,default-trigger = "none";
 		default-state = "on";
 		retain-state-suspended;
 	};
 
-	esim2_en {
-		gpios = <&tlmm 14 GPIO_ACTIVE_HIGH>;
-		label = "esim2_en";
-		linux,default-trigger = "none";
-		default-state = "keep";
-		retain-state-suspended;
-	};
-
-	esim3_en {
-		gpios = <&tlmm 12 GPIO_ACTIVE_HIGH>;
-		label = "esim3_en";
-		linux,default-trigger = "none";
-		default-state = "keep";
-		retain-state-suspended;
-	};
-
-	sim_hotplug {
-		gpios = <&tlmm 114 GPIO_ACTIVE_HIGH>;
-		label = "sim_hotplug";
-		linux,default-trigger = "none";
-		default-state = "keep";
-		retain-state-suspended;
-	};
-
 	bat1 {
-		gpios = <&tlmm 0 GPIO_ACTIVE_HIGH>;
+		gpios = <&tlmm 19 GPIO_ACTIVE_HIGH>;
 		label = "bat1";
 		linux,default-trigger = "none";
 		default-state = "off";
@@ -184,7 +151,7 @@
 	};
 
 	batl2 {
-		gpios = <&tlmm 91 GPIO_ACTIVE_HIGH>;
+		gpios = <&tlmm 22 GPIO_ACTIVE_HIGH>;
 		label = "batl2";
 		linux,default-trigger = "none";
 		default-state = "off";
@@ -192,7 +159,7 @@
 	};
 
 	batl3 {
-		gpios = <&tlmm 1 GPIO_ACTIVE_HIGH>;
+		gpios = <&tlmm 21 GPIO_ACTIVE_HIGH>;
 		label = "batl3";
 		linux,default-trigger = "none";
 		default-state = "off";
@@ -200,7 +167,7 @@
 	};
 
 	batl4 {
-		gpios = <&tlmm 100 GPIO_ACTIVE_HIGH>;
+		gpios = <&tlmm 20 GPIO_ACTIVE_HIGH>;
 		label = "batl4";
 		linux,default-trigger = "none";
 		default-state = "off";
@@ -209,17 +176,17 @@
 };
 
 &led_b {
-	gpios = <&tlmm 71 GPIO_ACTIVE_HIGH>;
+	gpios = <&tlmm 30 GPIO_ACTIVE_HIGH>;
 	linux,default-trigger = "none";
 };
 
 &led_g {
-	gpios = <&tlmm 73 GPIO_ACTIVE_HIGH>;
+	gpios = <&tlmm 27 GPIO_ACTIVE_HIGH>;
 	linux,default-trigger = "mmc0";
 };
 
 &led_r {
-	gpios = <&tlmm 72 GPIO_ACTIVE_HIGH>;
+	gpios = <&tlmm 28 GPIO_ACTIVE_HIGH>;
 	linux,default-trigger = "panic";
 };
 
@@ -228,12 +195,12 @@
 };
 
 &button_default {
-	pins = "gpio37";
+	pins = "gpio34";
 	bias-pull-up;
 };
 
 &gpio_leds_default {
-	pins = "gpio72", "gpio71", "gpio70", "gpio73", "gpio0", "gpio91", "gpio1", "gpio100";
+	pins = "gpio27", "gpio28", "gpio30", "gpio19", "gpio20", "gpio21", "gpio22", "gpio24", "gpio49", "gpio50", "gpio51";
 };
 
 /* This selects the external SIM card slot by default */
@@ -245,14 +212,4 @@
 		drive-strength = <8>;
 		bias-pull-up;
 	};
-
-	gpio_i2c_default: gpio_i2c_default {
-        i2c_pins_config {
-            pins = "gpio18", "gpio19";
-            function = "gpio";
-            drive-strength = <2>;
-            bias-pull-up;
-			input-enable;
-        };
-    };
 };

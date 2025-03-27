@@ -6,6 +6,6 @@
 #include "msm8916-memory-exp.dtsi"
 
 / {
-	model = "UFI MFX32 Boiler";
+	model = "MFX32 4G Boiler";
 	compatible = "ufi,mfx32-boiler", "qcom,msm8916", "lk2nd,device";
 };
