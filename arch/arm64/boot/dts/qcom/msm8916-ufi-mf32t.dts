@@ -28,12 +28,12 @@
 };
 
 &usb {
-	extcon = <&usb_id>, <&usb_id>;
+	extcon = <&pm8916_charger>, <&usb_id>;
 	status = "okay";
 };
 
 &usb_hs_phy {
-	extcon = <&usb_id>;
+	extcon = <&pm8916_charger>;
 };
 
 &leds {

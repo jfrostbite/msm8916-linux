@@ -37,10 +37,8 @@
 };
 
 &pm8916_charger {
-	qcom,vdd-safe = <4350000>;
-	qcom,ibat-safe = <500000>;
 	qcom,fast-charge-safe-current = <700000>;
-	qcom,fast-charge-safe-voltage = <4350000>;
+	qcom,fast-charge-safe-voltage = <4300000>;
 
 	monitored-battery = <&battery>;
 
