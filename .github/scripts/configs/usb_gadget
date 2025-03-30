@@ -38,13 +38,12 @@ start() {
 stop() {
     ebegin "Stopping USB gadget"
     # Disable USB gadget
-    echo "" > /sys/kernel/config/usb_gadget/g1/UDC
+    if [ -s /sys/kernel/config/usb_gadget/g1/UDC ]; then
+        echo "" > /sys/kernel/config/usb_gadget/g1/UDC
+    fi
     
     # Stop ADB
     pkill adbd 2>/dev/null
-    
-    # Unmount functionfs
-    umount /dev/usb-ffs/adb 2>/dev/null
     
     eend $?
 } 

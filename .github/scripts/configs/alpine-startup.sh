@@ -12,6 +12,13 @@ setup-hostname ${USER_NAME}
 setup-user -u ${USER_NAME}
 echo "${USER_NAME}:${USER_PASSWD}" | chpasswd
 
+# Check if this Linux system has a battery
+if [ -d "/sys/class/power_supply/pm8916-bms-vm" ] || [ -d "/sys/class/power_supply/pm8916-lbc-chgr" ]; then
+    echo 'SUBSYSTEM=="power_supply", ACTION=="change", RUN+="/usr/local/bin/battery_led_control.sh"' > /etc/udev/rules.d/99-battery.rules  
+    /bin/udevadm control --reload-rules
+    /bin/udevadm trigger 
+fi
+
 # expand rootfs
 resize2fs /dev/disk/by-partlabel/system
 
