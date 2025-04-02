@@ -42,8 +42,6 @@ if [ -f "$LOG_FILE" ]; then
     fi
 fi
 
-echo "[INFO] [$(date)] 正在检查新短信..." >>"$LOG_FILE"
-
 # 列出当前所有短信，过滤未读 "received" 状态
 NEW_SMS=$(mmcli -m 0 --messaging-list-sms | grep "(received)")
 
@@ -53,21 +51,7 @@ if [ ! -z "$NEW_SMS" ]; then
 
     # 提取短信路径 (例如 /org/freedesktop/ModemManager1/SMS/8)
     SMS_PATH=$(echo "$NEW_SMS" | head -n 1 | awk '{print $1}')
-
-    # 从tmp中取出短信路径，做对比，如果有了就不再处理
-    if [ -f "/tmp/sms_path" ]; then
-        OLD_SMS_PATH=$(cat /tmp/sms_path)
-        if [ "$SMS_PATH" == "$OLD_SMS_PATH" ]; then
-            echo "[INFO] [$(date)] 短信已处理，跳过..." >>"$LOG_FILE"
-            # 删除短信
-            mmcli -s "$SMS_PATH" >/dev/null 2>&1
-            sleep 1
-            mmcli -m 0 --messaging-delete-sms="$SMS_PATH"
-            echo "[INFO] [$(date)] 删除已处理的短信：$SMS_PATH" >>"$LOG_FILE"
-            exit 0
-        fi
-    fi
-
+    
     # 获取短信的具体详细信息
     SMS_INFO=$(mmcli -s "$SMS_PATH")
     echo "[INFO] [$(date)] 短信详情：$SMS_INFO" >>"$LOG_FILE"
@@ -89,7 +73,19 @@ if [ ! -z "$NEW_SMS" ]; then
     SUMMARY="短信转发通知"
 
     # 检测短信内容$CONTENT_CLEAN 是否包含验证码（假设验证码是 4-8 位数字），否则跳过
-    if [[ "$CONTENT_CLEAN" =~ [0-9]{4,8} ]]; then
+    # 过滤掉包含大于8位数字的短信
+    if echo "$CONTENT_CLEAN" | grep -qE '[0-9]{9,}'; then
+        echo "[INFO] [$(date)] 短信内容包含大于8位的数字，跳过短信：$SMS_PATH" >>"$LOG_FILE"
+        exit 1
+    fi
+
+    # 过滤掉运营商短信（假设运营商短信包含特定关键词，如 "中国移动", "中国联通", "中国电信"）
+    if echo "$CONTENT_CLEAN" | grep -qE '中国移动|中国联通|中国电信'; then
+        echo "[INFO] [$(date)] 检测到运营商短信，跳过短信：$SMS_PATH" >>"$LOG_FILE"
+        exit 1
+    fi
+    CODE=$(echo "$CONTENT_CLEAN" | grep -oE '(\u9a8c\u8bc1\u7801|auth|code)[^0-9]{0,20}[0-9]{4,8}' | grep -oE '[0-9]{4,8}' | head -n 1)
+    if [[ -z "$CODE" ]]; then
         CODE=$(echo "$CONTENT_CLEAN" | grep -oE '[0-9]{4,8}' | head -n 1)
         SUMMARY="验证码：$CODE"
         echo "[INFO] [$(date)] 提取到验证码：$CODE" >>"$LOG_FILE"
@@ -98,9 +94,30 @@ if [ ! -z "$NEW_SMS" ]; then
         exit 1
     fi
 
-    # 保存当前短信路径到临时文件
-    echo "$SMS_PATH" >"/tmp/sms_path"
-    echo "[INFO] [$(date)] 保存短信路径到临时文件：$SMS_PATH" >>"$LOG_FILE"
+    # 检查是否已经发送过相同的验证码
+    if [ -f "/tmp/sms_code" ]; then
+        OLD_CODE=$(cat /tmp/sms_code)
+        if [ "$CODE" == "$OLD_CODE" ]; then
+            echo "[INFO] [$(date)] 短信验证码已发送，跳过短信：$SMS_PATH" >>"$LOG_FILE"
+            # 循环删除短信
+            for i in {1..6}; do
+                DELETE_RESPONSE=$(mmcli -m 0 --messaging-delete-sms="$SMS_PATH")
+                DELETE_RESPONSE=echo "$DELETE_RESPONSE" | grep "success"
+                if [[ "x$DELETE_RESPONSE" == "x" ]]; then
+                    echo "[WARNING] [$(date)] 短信删除失败，重试中：$SMS_PATH (尝试 $i/6)" >>"$LOG_FILE"
+                    sleep 1
+                else
+                    echo "[INFO] [$(date)] 重复短信删除成功：$SMS_PATH" >>"$LOG_FILE"
+                    break
+                fi
+            done
+            exit 0
+        fi
+    fi
+
+    # 保存当前短信验证码到临时文件 
+    echo "$CODE" >"/tmp/sms_code"
+    echo "[INFO] [$(date)] 保存短信验证码到临时文件：$CODE" >>"$LOG_FILE"
 
     # 使用 printf 构建 JSON 数据，确保换行符被正确处理
     JSON_DATA=$(printf '{ 
@@ -120,11 +137,19 @@ if [ ! -z "$NEW_SMS" ]; then
     # 解析结果，判断是否发送成功
     SUCCESS=$(echo "$RESPONSE" | jq -r '.success')
     if [[ "$SUCCESS" == "true" ]] && [[ -n "$RESPONSE" ]]; then
-        echo "[INFO] [$(date)] 短信转发成功，删除短信：$SMS_PATH" >>"$LOG_FILE"
-        # 删除短信
-        mmcli -s "$SMS_PATH" >/dev/null 2>&1
-        sleep 1
-        mmcli -m 0 --messaging-delete-sms="$SMS_PATH"
+        echo "[INFO] [$(date)] 短信转发成功，尝试删除短信：$SMS_PATH" >>"$LOG_FILE"
+        # 循环尝试删除短信，直到成功
+        for i in {1..6}; do
+            DELETE_RESPONSE=$(mmcli -m 0 --messaging-delete-sms="$SMS_PATH")
+            DELETE_RESPONSE=echo "$DELETE_RESPONSE" | grep "success"
+            if [[ "x$DELETE_RESPONSE" == "x" ]]; then
+                echo "[WARNING] [$(date)] 短信删除失败，重试中：$SMS_PATH (尝试 $i/6)" >>"$LOG_FILE"
+                sleep 1
+            else
+                echo "[INFO] [$(date)] 短信删除成功：$SMS_PATH" >>"$LOG_FILE"
+                break
+            fi
+        done
     else
         echo "[ERROR] [$(date)] 短信转发失败，保留短信：$SMS_PATH" >>"$LOG_FILE"
     fi
