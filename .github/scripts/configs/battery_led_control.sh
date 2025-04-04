@@ -23,8 +23,6 @@ echo none > $LED_PATH/$LED4/trigger
 # 根据电量判断真实状态
 if [ "$CAPACITY" -eq 100 ]; then
     STATUS="Full"
-else
-    STATUS="$RAW_STATUS"
 fi
 
 # 根据电池电量点亮灯
