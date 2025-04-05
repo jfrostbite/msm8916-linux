@@ -155,7 +155,7 @@ rc-update add killprocs shutdown
 rc-update add savecache shutdown
 rc-update add dropbear default
 rc-update add rmtfs default
-rc-update add chronyd default
+rc-update add local default
 rc-update add modemmanager default
 rc-update add networkmanager default
 rc-update add dnsmasq default
@@ -197,6 +197,16 @@ cat << EOF > ${CHROOT}/etc/sysctl.d/local.conf
 net.ipv4.ip_forward = 1
 net.ipv6.conf.all.forwarding = 1
 EOF
+
+# Add chronyd to default runlevel but delay its start
+cat << EOF > /etc/local.d/chronyd-delay.start
+#!/bin/sh
+# Wait for network connectivity or 60 seconds, whichever comes first
+timeout 60 sh -c 'until ping -c1 8.8.8.8 >/dev/null 2>&1; do sleep 1; done'
+# Start chronyd
+rc-service chronyd start
+EOF
+chmod +x /etc/local.d/chronyd-delay.start
 
 # enable autologin on console
 sed -i '/^tty/ s/^/#/' ${CHROOT}/etc/inittab
