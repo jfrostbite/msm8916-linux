@@ -203,14 +203,15 @@ net.ipv6.conf.all.forwarding = 1
 EOF
 
 # Add chronyd to default runlevel but delay its start
-cat << EOF > /etc/local.d/chronyd-delay.start
+mkdir -p ${CHROOT}/etc/local.d
+cat << EOF > ${CHROOT}/etc/local.d/chronyd-delay.start
 #!/bin/sh
 # Wait for network connectivity or 60 seconds, whichever comes first
 timeout 60 sh -c 'until ping -c1 8.8.8.8 >/dev/null 2>&1; do sleep 1; done'
 # Start chronyd
 rc-service chronyd start
 EOF
-chmod +x /etc/local.d/chronyd-delay.start
+chmod +x ${CHROOT}/etc/local.d/chronyd-delay.start
 
 # enable autologin on console
 sed -i '/^tty/ s/^/#/' ${CHROOT}/etc/inittab

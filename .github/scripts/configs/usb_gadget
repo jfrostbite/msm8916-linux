@@ -10,14 +10,17 @@ depend() {
 
 start() {
     ebegin "Running USB Gadget setup"
-    /usr/local/bin/adbd &
+
+    if ! pgrep "adbd" > /dev/null; then
+        /usr/local/bin/adbd &
+    fi
     for i in {1..10}; do
-        if pgrep -x "adbd" > /dev/null; then
+        if pgrep "adbd" > /dev/null; then
             break
-        fi
+    fi
         sleep 3
     done
-    
+
     sleep 3
 
     UDC=$(ls -1 /sys/class/udc | head -n 1)
@@ -41,9 +44,6 @@ stop() {
     if grep -q "." /sys/kernel/config/usb_gadget/g1/UDC; then
         echo "" > /sys/kernel/config/usb_gadget/g1/UDC
     fi
-    
-    # Stop ADB
-    pkill adbd 2>/dev/null
-    
+
     eend $?
 } 

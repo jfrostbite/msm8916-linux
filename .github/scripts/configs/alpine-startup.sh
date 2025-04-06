@@ -13,7 +13,7 @@ setup-user -u ${USER_NAME}
 echo "${USER_NAME}:${USER_PASSWD}" | chpasswd
 
 # check usb gadget
-echo 'ACTION=="unbind", SUBSYSTEM=="gadget", KERNEL=="gadget.0", RUN+="/usr/local/bin/usb_gadget_restart.sh"' > /etc/udev/rules.d/99-usb-gadget.rules
+echo 'ACTION=="unbind", SUBSYSTEM=="gadget", ENV{USEC_INITIALIZED}=="*", RUN+="/usr/local/bin/usb_gadget_restart.sh"' > /etc/udev/rules.d/99-usb-gadget.rules
 
 # Check if this Linux system has a battery
 if [ -d "/sys/class/power_supply/pm8916-bms-vm" ] || [ -d "/sys/class/power_supply/pm8916-lbc-chgr" ]; then
