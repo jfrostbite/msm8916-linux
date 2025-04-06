@@ -26,7 +26,7 @@ start() {
     
     for i in {1..10}; do
         echo "$UDC" > /sys/kernel/config/usb_gadget/g1/UDC
-        if [ -s /sys/kernel/config/usb_gadget/g1/UDC ]; then
+        if grep -q "." /sys/kernel/config/usb_gadget/g1/UDC; then  
             break
         fi
         sleep 3
@@ -38,7 +38,7 @@ start() {
 stop() {
     ebegin "Stopping USB gadget"
     # Disable USB gadget
-    if [ -s /sys/kernel/config/usb_gadget/g1/UDC ]; then
+    if grep -q "." /sys/kernel/config/usb_gadget/g1/UDC; then
         echo "" > /sys/kernel/config/usb_gadget/g1/UDC
     fi
     

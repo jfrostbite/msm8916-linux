@@ -84,6 +84,10 @@ chmod +x ${CHROOT}/etc/init.d/usb_gadget
 cp configs/battery_led_control.sh ${CHROOT}/usr/local/bin/
 chmod +x ${CHROOT}/usr/local/bin/battery_led_control.sh
 
+# install usb_gadget_restart
+cp configs/usb_gadget_restart.sh ${CHROOT}/usr/local/bin/
+chmod +x ${CHROOT}/usr/local/bin/usb_gadget_restart.sh
+
 # install apps
 chroot ${CHROOT} ash -l -c "
 apk add --no-cache --allow-untrusted postmarketos-keys
