@@ -112,22 +112,6 @@
 	extcon = <&pm8916_usbin>;
 };
 
-&venus {
-	status = "disabled";
-};
-
-&venus_mem {
-	status = "disabled";
-};
-
-&pm8916_codec {
-	status = "disabled";
-};
-
-&sound {
-	status = "disabled";
-};
-
 &wcnss {
 	status = "okay";
 };

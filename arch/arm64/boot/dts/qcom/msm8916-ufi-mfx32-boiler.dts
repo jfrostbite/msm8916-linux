@@ -3,9 +3,47 @@
 /dts-v1/;
 
 #include "msm8916-ufi-mfx32.dts"
-#include "msm8916-memory-exp.dtsi"
 
 / {
 	model = "MFX32 4G Boiler";
 	compatible = "ufi,mfx32-boiler", "qcom,msm8916", "lk2nd,device";
+
+
+	i2c-gpio {
+		compatible = "i2c-gpio";
+		sda-gpios = <&tlmm 18 (GPIO_ACTIVE_HIGH | GPIO_OPEN_DRAIN)>;
+		scl-gpios = <&tlmm 19 (GPIO_ACTIVE_HIGH | GPIO_OPEN_DRAIN)>;
+
+		i2c-gpio,delay-us = <5>; /* ~50 kHz */
+		i2c-gpio,timeout-ms = <100>;
+		
+		i2c-gpio,udelay = <5>;
+
+		pinctrl-0 = <&gpio_i2c_default>;
+		pinctrl-names = "default";
+
+		#address-cells = <1>;
+		#size-cells = <0>;
+
+		status = "okay";
+
+		aht10@38 {
+			compatible = "aosong,aht10";
+			reg = <0x38>;
+			status = "okay";
+		};
+	};
+};
+
+&tlmm {
+	
+	gpio_i2c_default: gpio_i2c_default {
+        i2c_pins_config {
+            pins = "gpio18", "gpio19";
+            function = "gpio";
+            drive-strength = <2>;
+            bias-pull-up;
+			input-enable;
+        };
+    };
 };
