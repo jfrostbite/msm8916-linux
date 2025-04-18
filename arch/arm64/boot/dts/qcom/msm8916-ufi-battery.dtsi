@@ -4,7 +4,7 @@
 	battery: battery {
 		compatible = "simple-battery";
 		voltage-min-design-microvolt = <3400000>;
-		voltage-max-design-microvolt = <4350000>;
+		voltage-max-design-microvolt = <4200000>;
 		energy-full-design-microwatt-hours = <7980000>;
 		charge-full-design-microamp-hours = <2100000>;
 
@@ -38,7 +38,7 @@
 
 &pm8916_charger {
 	qcom,fast-charge-safe-current = <700000>;
-	qcom,fast-charge-safe-voltage = <4300000>;
+	qcom,fast-charge-safe-voltage = <4200000>;
 
 	monitored-battery = <&battery>;
 
