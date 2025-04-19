@@ -214,6 +214,15 @@ rc-service chronyd start
 EOF
 chmod +x ${CHROOT}/etc/local.d/chronyd-delay.start
 
+# Add disablebt
+cat << EOF > ${CHROOT}/etc/local.d/disablebt.start
+#!/bin/sh
+rfkill toggle bluetooth 
+rfkill block wifi
+echo '1500' > /proc/sys/vm/dirty_writeback_centisecs
+EOF
+chmod +x ${CHROOT}/etc/local.d/disablebt.start
+
 # enable autologin on console
 sed -i '/^tty/ s/^/#/' ${CHROOT}/etc/inittab
 echo 'ttyMSM0::respawn:/bin/busybox getty -L -n -l /root/login.sh ttyMSM0 115200' >> ${CHROOT}/etc/inittab

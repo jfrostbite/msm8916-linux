@@ -26,8 +26,6 @@ fi
 
 # improve power
 iw dev wlan0 set power_save on
-rfkill block bluetooth
-rfkill block wifi
 
 # expand rootfs
 resize2fs /dev/disk/by-partlabel/system
