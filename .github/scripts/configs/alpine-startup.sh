@@ -24,6 +24,11 @@ if [ -d "/sys/class/power_supply/pm8916-bms-vm" ] || [ -d "/sys/class/power_supp
     /bin/udevadm trigger 
 fi
 
+# improve power
+iw dev wlan0 set power_save on
+rfkill block bluetooth
+rfkill block wifi
+
 # expand rootfs
 resize2fs /dev/disk/by-partlabel/system
 

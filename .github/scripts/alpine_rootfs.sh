@@ -116,6 +116,7 @@ apk add --no-cache \
     e2fsprogs-extra \
     openssh-sftp-server \
     zram-init \
+    iw \
     shadow
 
 if [ "$NAME" == "sp970" ]; then
