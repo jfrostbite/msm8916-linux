@@ -20,8 +20,15 @@ echo none > $LED_PATH/$LED2/trigger
 echo none > $LED_PATH/$LED3/trigger
 echo none > $LED_PATH/$LED4/trigger
 
-# 根据电量判断真实状态
-if [ "$CAPACITY" -eq 100 ]; then
+# 获取当前电压
+VOLTAGE_NOW=$(cat $BATTERY_PATH/voltage_now)
+VOLTAGE_PREV=$(cat /tmp/battery_voltage_prev 2>/dev/null || echo 0)
+
+# 保存当前电压用于下次比较
+echo $VOLTAGE_NOW > /tmp/battery_voltage_prev
+
+# 根据电压变化判断真实状态
+if [ "$STATUS" == "Charging" ] && [ "$VOLTAGE_NOW" -eq "$VOLTAGE_PREV" ] && [ "$VOLTAGE_NOW" -gt 4200000 ]; then
     STATUS="Full"
 fi
 
