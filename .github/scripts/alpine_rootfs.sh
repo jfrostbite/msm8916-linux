@@ -97,7 +97,6 @@ apk add --no-cache \
     dropbear \
     eudev \
     iptables \
-    nftables \
     modemmanager \
     msm-firmware-loader \
     networkmanager-cli \
@@ -155,6 +154,7 @@ rc-update add modules boot
 rc-update add sysctl boot
 rc-update add hostname boot
 rc-update add bootmisc boot
+rc-update add iptables boot
 rc-update add mount-ro shutdown
 rc-update add killprocs shutdown
 rc-update add savecache shutdown
@@ -177,12 +177,7 @@ fi
 
 # add nftables rules
 mkdir -p ${CHROOT}/etc/iptables
-cp configs/ruleset.nft ${CHROOT}/etc/iptables/
-cat << EOF > ${CHROOT}/usr/local/bin/restore_nftables
-#!/bin/sh
-iptables-nft-restore < /etc/iptables/ruleset.nft
-EOF
-chmod +x ${CHROOT}/usr/local/bin/restore_nftables
+cp configs/ruleset.nft ${CHROOT}/etc/iptables/rules-save
 
 # add udev rules
 cat << EOF > ${CHROOT}/etc/udev/rules.d/10-udc.rules
@@ -191,10 +186,6 @@ EOF
 
 cat << EOF > ${CHROOT}/etc/udev/rules.d/99-nm-usb0.rules
 SUBSYSTEM=="net", ACTION=="add|change|move", ENV{DEVTYPE}=="gadget", ENV{NM_UNMANAGED}="0"
-EOF
-
-cat << EOF > ${CHROOT}/etc/udev/rules.d/99-restore-nftables.rules
-SUBSYSTEM=="net", ACTION=="add|change", ENV{DEVTYPE}=="gadget", RUN+="/usr/local/bin/restore_nftables"
 EOF
 
 # add ip forwarding
