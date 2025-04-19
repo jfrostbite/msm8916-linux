@@ -218,7 +218,6 @@ chmod +x ${CHROOT}/etc/local.d/chronyd-delay.start
 cat << EOF > ${CHROOT}/etc/local.d/disablebt.start
 #!/bin/sh
 rfkill toggle bluetooth 
-rfkill block wifi
 echo '1500' > /proc/sys/vm/dirty_writeback_centisecs
 EOF
 chmod +x ${CHROOT}/etc/local.d/disablebt.start
