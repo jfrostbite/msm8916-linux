@@ -13,8 +13,8 @@ jobs:
     steps:
       - name: Prepare
         run: |
-          apt -y update
-          apt -y install git lsb-release gcc-aarch64-linux-gnu bison flex libssl-dev libelf-dev debhelper bc rsync kmod cpio
+          sudo apt -y update
+          sudo apt -y install git lsb-release gcc-aarch64-linux-gnu bison flex libssl-dev libelf-dev debhelper bc rsync kmod cpio
 
       - name: Checkout
         uses: actions/checkout@v4
