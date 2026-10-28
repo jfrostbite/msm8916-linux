@@ -9,7 +9,7 @@ on:
 jobs:
   build:
     name: Build kernel
-    runs-on: debian:bookworm
+    runs-on: ubuntu-latest
     steps:
       - name: Prepare
         run: |
@@ -44,7 +44,7 @@ jobs:
   bootimg:
     name: Make boot images
     needs: build
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-latest
     steps:
       - name: Prepare
         run: |
