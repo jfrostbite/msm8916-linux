@@ -83,7 +83,10 @@ jobs:
       - name: Prepare
         run: |
           sudo apt -y update
-          sudo apt -y install mkbootimg debootstrap android-sdk-libsparse-utils
+          sudo apt -y install android-sdk-libsparse-utils
+          # Ubuntu's mkbootimg package is missing the gki module, use the AOSP source instead
+          sudo git clone --depth 1 https://android.googlesource.com/platform/system/tools/mkbootimg /opt/mkbootimg
+          sudo ln -sf /opt/mkbootimg/mkbootimg.py /usr/local/bin/mkbootimg
           mkdir artifacts
 
       - name: Checkout
