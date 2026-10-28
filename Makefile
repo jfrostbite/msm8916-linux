@@ -1,13 +1,7 @@
 # SPDX-License-Identifier: GPL-2.0
-<<<<<<< HEAD
 VERSION = 7
 PATCHLEVEL = 3
 SUBLEVEL = 0
-=======
-VERSION = 6
-PATCHLEVEL = 12
-SUBLEVEL = 1
->>>>>>> msm8916/ufi
 EXTRAVERSION =
 NAME = Baby Opossum Posse
 
