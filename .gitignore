@@ -10,7 +10,8 @@
 #
 # Normal rules (sorted alphabetically)
 #
-.*
+#.*
+.kiro/
 *.a
 *.asn1.[ch]
 *.bc
