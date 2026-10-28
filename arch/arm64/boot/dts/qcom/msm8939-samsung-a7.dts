@@ -424,6 +424,10 @@
 	status = "okay";
 };
 
+&gpu {
+	status = "okay";
+};
+
 /*
  * For some reason the speaker amplifier is connected to the second SD line
  * (MI2S_2_D1) instead of the first (MI2S_2_D0). This must be configured in the

@@ -1,0 +1,10 @@
+[Unit] 
+Description=Runs mobian-startup.service 1 minute after boot up
+
+[Timer] 
+OnBootSec=1 m 
+Unit=mobian-startup.service
+
+[Install] 
+WantedBy=default.target
+

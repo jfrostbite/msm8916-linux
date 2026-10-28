@@ -1,0 +1,49 @@
+#!/sbin/openrc-run
+
+name="usb_gadget"
+description="USB Gadget setup for ADB and RNDIS"
+
+depend() {
+    need net localmount
+    after modules udev
+}
+
+start() {
+    ebegin "Running USB Gadget setup"
+
+    if ! pgrep "adbd" > /dev/null; then
+        /usr/local/bin/adbd &
+    fi
+    for i in {1..10}; do
+        if pgrep "adbd" > /dev/null; then
+            break
+    fi
+        sleep 3
+    done
+
+    sleep 3
+
+    UDC=$(ls -1 /sys/class/udc | head -n 1)
+
+    sleep 3
+    
+    for i in {1..10}; do
+        echo "$UDC" > /sys/kernel/config/usb_gadget/g1/UDC
+        if grep -q "." /sys/kernel/config/usb_gadget/g1/UDC; then  
+            break
+        fi
+        sleep 3
+    done
+    
+    eend $?
+}
+
+stop() {
+    ebegin "Stopping USB gadget"
+    # Disable USB gadget
+    if grep -q "." /sys/kernel/config/usb_gadget/g1/UDC; then
+        echo "" > /sys/kernel/config/usb_gadget/g1/UDC
+    fi
+
+    eend $?
+} 

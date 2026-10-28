@@ -1,0 +1,20 @@
+#!/sbin/openrc-run
+
+name="alpine-startup"
+description="Alpine Linux startup configuration"
+
+depend() {
+    need net
+    after modules
+}
+
+start() {
+    ebegin "Running Alpine Linux startup configuration"
+    /usr/local/bin/alpine-startup.sh
+    rc-update del alpine-startup default
+    eend $?
+}
+
+stop() {
+    eend 0
+} 

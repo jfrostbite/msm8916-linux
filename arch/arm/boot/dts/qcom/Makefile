@@ -35,7 +35,10 @@ dtb-$(CONFIG_ARCH_QCOM) += \
 	qcom-msm8905-nokia-argon.dtb \
 	qcom-msm8909-acer-t01.dtb \
 	qcom-msm8909-fareastone-smart506.dtb \
+<<<<<<< HEAD
 	qcom-msm8909-lenovo-lxf-p5000.dtb \
+=======
+>>>>>>> msm8916/ufi
 	qcom-msm8909-lenovo-lxf-p5100.dtb \
 	qcom-msm8909-nokia-leo.dtb \
 	qcom-msm8909-nokia-sparkler.dtb \
