@@ -45,7 +45,14 @@ cp /etc/resolv.conf ${CHROOT}/etc/
 # mkdir -p ${CHROOT}/usr/bin
 # cp $(which qemu-aarch64-static) ${CHROOT}/usr/bin
 
-curl -L -o apk.static https://gitlab.alpinelinux.org/api/v4/projects/5/packages/generic/v2.14.6/x86_64/apk.static
+# fetch apk.static from the Alpine CDN (gitlab.alpinelinux.org is unreachable from CI)
+APK_REPO=http://dl-cdn.alpinelinux.org/alpine/latest-stable/main/x86_64
+curl -fL --retry 3 --connect-timeout 30 -o APKINDEX.tar.gz "${APK_REPO}/APKINDEX.tar.gz"
+APK_TOOLS_VER=$(tar -xzOf APKINDEX.tar.gz APKINDEX | awk '/^P:apk-tools-static$/ {p=1; next} p && /^V:/ {sub(/^V:/, ""); print; exit}')
+curl -fL --retry 3 --connect-timeout 30 -o apk-tools-static.apk "${APK_REPO}/apk-tools-static-${APK_TOOLS_VER}.apk"
+tar -xzf apk-tools-static.apk sbin/apk.static
+mv sbin/apk.static apk.static
+rm -rf sbin apk-tools-static.apk APKINDEX.tar.gz
 chmod a+x apk.static
 
 ./apk.static -X http://dl-cdn.alpinelinux.org/alpine/latest-stable/main/ -p ${CHROOT} --initdb -U --arch aarch64 --allow-untrusted add alpine-base
