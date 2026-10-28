@@ -21,6 +21,11 @@ on:
           - uz801-memory-exp
         default: sp970
 
+# cancel superseded runs for the same branch or tag
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   build:
     name: Build kernel
@@ -29,20 +34,33 @@ jobs:
       - name: Prepare
         run: |
           sudo apt -y update
-          sudo apt -y install git lsb-release gcc-aarch64-linux-gnu build-essential bison flex libssl-dev libdw-dev libelf-dev debhelper bc rsync kmod cpio python3
+          sudo apt -y install git lsb-release gcc-aarch64-linux-gnu build-essential bison flex libssl-dev libdw-dev libelf-dev debhelper bc rsync kmod cpio python3 ccache
 
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
 
       - name: Prepare repository
         run: git config --global --add safe.directory "$(pwd)"
 
+      - name: Restore ccache
+        uses: actions/cache@v4
+        with:
+          path: ~/.ccache
+          key: ccache-kernel-${{ github.sha }}
+          restore-keys: |
+            ccache-kernel-
+
       - name: Build
+        env:
+          CCACHE_MAXSIZE: 2G
         run: |
           export CROSS_COMPILE=aarch64-linux-gnu-
           export ARCH=arm64
-          make ufi_defconfig
-          make deb-pkg -j"$(($(grep -c processor < /proc/cpuinfo)*2))"
+          make CC="ccache aarch64-linux-gnu-gcc" HOSTCC="ccache gcc" ufi_defconfig
+          make CC="ccache aarch64-linux-gnu-gcc" HOSTCC="ccache gcc" deb-pkg -j"$(($(grep -c processor < /proc/cpuinfo)*2))"
+          ccache -s
 
       - name: Prepare artifacts
         run: |
@@ -55,20 +73,23 @@ jobs:
         with:
           name: kernel
           path: artifacts/*
+          compression-level: 0
 
   bootimg:
     name: Make boot images (${{ inputs.device || 'sp970' }})
     needs: build
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04-arm
     steps:
       - name: Prepare
         run: |
           sudo apt -y update
-          sudo apt -y install binfmt-support qemu-user-static mkbootimg debootstrap android-sdk-libsparse-utils
+          sudo apt -y install mkbootimg debootstrap android-sdk-libsparse-utils
           mkdir artifacts
 
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
 
       - name: Download kernel
         uses: actions/download-artifact@v4
@@ -107,6 +128,7 @@ jobs:
         with:
           name: kernel and boot images
           path: artifacts/*
+          compression-level: 0
           
       - name: Generate release tag
         id: version

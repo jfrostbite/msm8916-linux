@@ -5,7 +5,10 @@ if [ -z "$1" ]; then
 else
     NAME="$1"
 fi
-export TMPDIR=${TMPDIR=/root/tmp}
+export TMPDIR=${TMPDIR=/var/tmp/alpine-build}
+mkdir -p ${TMPDIR}
+# log the mount options of the build dir; "nosuid" here breaks setuid files in apk
+findmnt -T ${TMPDIR} -o TARGET,FSTYPE,OPTIONS || true
 export CHROOT=${CHROOT=${TMPDIR}/rootfs}
 export RELEASE=${RELEASE=latest-stable}
 export PMOS_RELEASE=${PMOS_RELEASE=master}
@@ -46,7 +49,7 @@ cp /etc/resolv.conf ${CHROOT}/etc/
 # cp $(which qemu-aarch64-static) ${CHROOT}/usr/bin
 
 # fetch apk.static from the Alpine CDN (gitlab.alpinelinux.org is unreachable from CI)
-APK_REPO=http://dl-cdn.alpinelinux.org/alpine/latest-stable/main/x86_64
+APK_REPO=http://dl-cdn.alpinelinux.org/alpine/latest-stable/main/$(uname -m)
 curl -fL --retry 3 --connect-timeout 30 -o APKINDEX.tar.gz "${APK_REPO}/APKINDEX.tar.gz"
 APK_TOOLS_VER=$(tar -xzOf APKINDEX.tar.gz APKINDEX | awk '/^P:apk-tools-static$/ {p=1; next} p && /^V:/ {sub(/^V:/, ""); print; exit}')
 curl -fL --retry 3 --connect-timeout 30 -o apk-tools-static.apk "${APK_REPO}/apk-tools-static-${APK_TOOLS_VER}.apk"
@@ -97,6 +100,7 @@ chmod +x ${CHROOT}/usr/local/bin/usb_gadget_restart.sh
 
 # install apps
 chroot ${CHROOT} ash -l -c "
+set -e
 apk add --no-cache --allow-untrusted postmarketos-keys
 apk add --no-cache \
     bridge-utils \
@@ -120,13 +124,14 @@ apk add --no-cache \
     wireguard-tools-wg-quick \
     wpa_supplicant \
     e2fsprogs-extra \
+    tzdata \
     openssh-sftp-server \
     zram-init \
     iw \
     shadow
 
 if [ "$NAME" == "sp970" ]; then
-    apk add --no-cache msm-modem-uim-selection
+    apk add --no-cache msm-modem-uim-selection || echo 'WARNING: msm-modem-uim-selection not installed'
 fi
 "
 
@@ -228,6 +233,13 @@ echo 'ttyMSM0::respawn:/bin/busybox getty -L -n -l /root/login.sh ttyMSM0 115200
 sed -i "s/num_devices=[0-9]*/num_devices=1/" ${CHROOT}/etc/conf.d/zram-init
 
 # setup NetworkManager
+# log which conf file the networkmanager package actually shipped
+chroot ${CHROOT} apk info -L networkmanager | grep -i 'conf' || true
+mkdir -p ${CHROOT}/etc/NetworkManager/system-connections
+mkdir -p ${CHROOT}/etc/NetworkManager
+if [ ! -f ${CHROOT}/etc/NetworkManager/NetworkManager.conf ]; then
+    printf '[main]\n' > ${CHROOT}/etc/NetworkManager/NetworkManager.conf
+fi
 cp configs/*.nmconnection ${CHROOT}/etc/NetworkManager/system-connections
 chmod 0600 ${CHROOT}/etc/NetworkManager/system-connections/*
 sed -i '/\[main\]/a dns=dnsmasq' ${CHROOT}/etc/NetworkManager/NetworkManager.conf
@@ -289,7 +301,7 @@ ROOTFS_SIZE=$((ROOTFS_SIZE + 67108864))
 truncate -s $ROOTFS_SIZE ${TMPDIR}/rootfs.img
 mkfs.ext4 ${TMPDIR}/rootfs.img
 mount ${TMPDIR}/rootfs.img ${TMPDIR}/mnt
-rsync -aH --exclude={"/boot/*","/proc/*","/sys/*","/dev/*"} ${CHROOT}/ ${TMPDIR}/mnt/
+rsync -aH --exclude=/boot/* --exclude=/proc/* --exclude=/sys/* --exclude=/dev/* ${CHROOT}/ ${TMPDIR}/mnt/
 umount ${TMPDIR}/mnt
 
 # create sparse android images 
