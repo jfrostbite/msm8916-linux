@@ -14,7 +14,7 @@ jobs:
       - name: Prepare
         run: |
           sudo apt -y update
-          sudo apt -y install git lsb-release gcc-aarch64-linux-gnu bison flex libssl-dev libelf-dev debhelper bc rsync kmod cpio
+          sudo apt -y install git lsb-release gcc-aarch64-linux-gnu bison flex libssl-dev libelf-dev debhelper bc rsync kmod cpio build-essential libdw-dev libssl-dev
 
       - name: Checkout
         uses: actions/checkout@v4
