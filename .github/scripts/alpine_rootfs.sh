@@ -14,18 +14,18 @@ export PMOS_MIRROR=${PMOS_MIRROR=http://mirrors.aliyun.com/postmarketOS}
 
 PASSWORD="admin$NAME"
 
-if [ ! -f "../../arch/arm64/boot/Image.gz" ]; then
+if [ ! -f "../../artifacts/Image.gz" ]; then
     echo "Kernel Image.gz not found"
     exit 1
 fi
 
 if [ "$NAME" = "ufi" ]; then
-    if [ -z "$(ls ../../arch/arm64/boot/dts/qcom/msm8916-ufi-*.dtb 2>/dev/null)" ]; then
+    if [ -z "$(ls ../../artifacts/msm8916-ufi-*.dtb 2>/dev/null)" ]; then
         echo "DTB file not found"
         exit 1
     fi
 else
-    if [ ! -f "../../arch/arm64/boot/dts/qcom/msm8916-ufi-${NAME}.dtb" ]; then
+    if [ ! -f "../../artifacts/msm8916-ufi-${NAME}.dtb" ]; then
         echo "DTB file not found"
         exit 1
     fi
@@ -240,13 +240,19 @@ fi
 
 # copy custom dtb's
 mkdir -p ${CHROOT}/boot/dtbs/qcom
-cp ../../arch/arm64/boot/dts/qcom/msm8916-ufi-*.dtb ${CHROOT}/boot/dtbs/qcom
+cp ../../artifacts/msm8916-ufi-*.dtb ${CHROOT}/boot/dtbs/qcom
 
 # copy kernel
-cp ../../arch/arm64/boot/Image.gz ${CHROOT}/boot/vmlinuz
+cp ../../artifacts/Image.gz ${CHROOT}/boot/vmlinuz
 
-# copy modules
-make -C ../../ ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu- modules_install INSTALL_MOD_PATH=${CHROOT}
+# copy modules from the kernel package built in the build job
+MODS_TMP=${TMPDIR}/debmods
+rm -rf ${MODS_TMP}
+mkdir -p ${MODS_TMP}
+dpkg-deb -x ../../artifacts/linux-image-*.deb ${MODS_TMP}
+cp -a ${MODS_TMP}/lib ${CHROOT}/
+rm -rf ${MODS_TMP}
+depmod -b ${CHROOT} $(ls ${CHROOT}/lib/modules)
 
 # update fstab
 echo "/dev/disk/by-partlabel/boot\t/boot\text2\tdefaults\t0 2" > ${CHROOT}/etc/fstab

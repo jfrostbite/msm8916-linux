@@ -5,6 +5,21 @@ on:
       - '*'
   pull_request:
   workflow_dispatch:
+    inputs:
+      device:
+        description: 'Device model for the boot image and rootfs'
+        type: choice
+        options:
+          - mf32t
+          - mfx32
+          - mfx32-boiler
+          - sp970
+          - sp970-memory-exp
+          - ufi003
+          - ufi003-memory-exp
+          - uz801
+          - uz801-memory-exp
+        default: sp970
 
 jobs:
   build:
@@ -42,7 +57,7 @@ jobs:
           path: artifacts/*
 
   bootimg:
-    name: Make boot images
+    name: Make boot images (${{ inputs.device || 'sp970' }})
     needs: build
     runs-on: ubuntu-22.04
     steps:
@@ -61,17 +76,31 @@ jobs:
           name: kernel
           path: artifacts
 
+      - name: Select device
+        env:
+          DEVICE: ${{ inputs.device || 'sp970' }}
+        run: |
+          dtb="artifacts/msm8916-ufi-${DEVICE}.dtb"
+          if [ ! -f "$dtb" ]; then
+            echo "::error::$dtb not found in the kernel artifact"
+            echo "Available devices:"
+            ls artifacts/msm8916-ufi-*.dtb | sed -e 's#^artifacts/msm8916-ufi-##' -e 's#\.dtb$##'
+            exit 1
+          fi
+          echo "DEVICE=$DEVICE" >> "$GITHUB_ENV"
+
       - name: Build
         run: |
           cd .github/scripts
           chmod +x build_boot_img.sh
-          sudo ./build_boot_img.sh
+          sudo ./build_boot_img.sh "$DEVICE"
 
       - name: Build rootfs
         run: |
           cd .github/scripts
-          chmod +x build_rootfs.sh
-          sudo ./build_rootfs.sh
+          chmod +x alpine_rootfs.sh
+          sudo ./alpine_rootfs.sh "$DEVICE"
+          sudo cp files/rootfs.bin "../../artifacts/alpine-rootfs-${DEVICE}.bin"
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
