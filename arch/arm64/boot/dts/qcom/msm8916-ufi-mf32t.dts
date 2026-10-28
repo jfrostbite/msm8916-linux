@@ -1,0 +1,144 @@
+// SPDX-License-Identifier: GPL-2.0-only
+
+/dts-v1/;
+
+#include "msm8916-ufi.dtsi"
+#include "msm8916-ufi-battery.dtsi"
+
+/ {
+ 	model = "MF32T 4G Modem";
+ 	compatible = "ufi,mf32t", "qcom,msm8916", "lk2nd,device";
+
+	usb_id: usb-id {
+		compatible = "linux,extcon-usb-gpio";
+		id-gpios = <&tlmm 110 GPIO_ACTIVE_HIGH>;
+		pinctrl-0 = <&usb_id_default>;
+		pinctrl-names = "default";
+	};
+};
+
+&cpu_opp_table {
+	opp-1094400000 {
+		opp-hz = /bits/ 64 <1094400000>;
+	};
+};
+
+&button_restart {
+	gpios = <&tlmm 34 GPIO_ACTIVE_LOW>;
+};
+
+&usb {
+	extcon = <&pm8916_charger>, <&usb_id>;
+	status = "okay";
+};
+
+&usb_hs_phy {
+	extcon = <&pm8916_charger>;
+};
+
+&leds {
+	status = "okay";
+
+	esim2_sel {
+		gpios = <&tlmm 51 GPIO_ACTIVE_HIGH>;
+		label = "esim2_sel";
+		linux,default-trigger = "none";
+		default-state = "keep";
+		retain-state-suspended;
+	};
+
+	esim_sel {
+		gpios = <&tlmm 50 GPIO_ACTIVE_HIGH>;
+		label = "esim_sel";
+		linux,default-trigger = "none";
+		default-state = "keep";
+		retain-state-suspended;
+	};
+
+	sim_sel {
+		gpios = <&tlmm 49 GPIO_ACTIVE_HIGH>;
+		label = "sim_sel";
+		linux,default-trigger = "none";
+		default-state = "keep";
+		retain-state-suspended;
+	};
+
+	sim_en {
+		gpios = <&tlmm 24 GPIO_ACTIVE_HIGH>;
+		label = "sim_en";
+		linux,default-trigger = "none";
+		default-state = "on";
+		retain-state-suspended;
+	};
+
+	bat1 {
+		gpios = <&tlmm 19 GPIO_ACTIVE_HIGH>;
+		label = "bat1";
+		linux,default-trigger = "none";
+		default-state = "off";
+		retain-state-suspended;
+	};
+
+	batl2 {
+		gpios = <&tlmm 22 GPIO_ACTIVE_HIGH>;
+		label = "batl2";
+		linux,default-trigger = "none";
+		default-state = "off";
+		retain-state-suspended;
+	};
+
+	batl3 {
+		gpios = <&tlmm 21 GPIO_ACTIVE_HIGH>;
+		label = "batl3";
+		linux,default-trigger = "none";
+		default-state = "off";
+		retain-state-suspended;
+	};
+
+	batl4 {
+		gpios = <&tlmm 20 GPIO_ACTIVE_HIGH>;
+		label = "batl4";
+		linux,default-trigger = "none";
+		default-state = "off";
+		retain-state-suspended;
+	};
+};
+
+&led_b {
+	gpios = <&tlmm 30 GPIO_ACTIVE_HIGH>;
+	linux,default-trigger = "mmc0";
+};
+
+&led_g {
+	gpios = <&tlmm 27 GPIO_ACTIVE_HIGH>;
+	linux,default-trigger = "none";
+};
+
+&led_r {
+	gpios = <&tlmm 28 GPIO_ACTIVE_HIGH>;
+	linux,default-trigger = "panic";
+};
+
+&sdhc_2 {
+	status = "okay";
+};
+
+&button_default {
+	pins = "gpio34";
+	bias-pull-up;
+};
+
+&gpio_leds_default {
+	pins = "gpio27", "gpio28", "gpio30", "gpio19", "gpio20", "gpio21", "gpio22";
+};
+
+/* This selects the external SIM card slot by default */
+&tlmm {
+	
+	usb_id_default: usb-id-default-state {
+		pins = "gpio110";
+		function = "gpio";
+		drive-strength = <8>;
+		bias-pull-up;
+	};
+};

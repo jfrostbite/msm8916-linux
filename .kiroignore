@@ -1,0 +1,20 @@
+# Credentials
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.p12
+secrets/
+credentials/
+
+# Dependencies and build outputs
+node_modules/
+.venv/
+__pycache__/
+dist/
+build/
+
+# Temporary artifacts
+*.dump
+*.tmp

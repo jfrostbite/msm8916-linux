@@ -32,7 +32,7 @@
 		};
 	};
 
-	leds {
+	leds: leds {
 		compatible = "gpio-leds";
 
 		pinctrl-0 = <&gpio_leds_default>;
@@ -113,14 +113,6 @@
 
 &usb_hs_phy {
 	extcon = <&pm8916_usbin>;
-};
-
-&venus {
-	status = "okay";
-};
-
-&venus_mem {
-	status = "okay";
 };
 
 &wcnss {

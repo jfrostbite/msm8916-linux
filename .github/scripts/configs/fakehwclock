@@ -1,0 +1,15 @@
+#!/sbin/openrc-run
+
+# use /usr/local/bin/fake-hwclock Restore / save the current clock 
+
+start() {
+    ebegin "Running fake-hwclock"
+    /usr/local/bin/fake-hwclock load force
+    eend $?
+}
+
+stop() {
+    ebegin "Stopping fake-hwclock"
+    /usr/local/bin/fake-hwclock save
+    eend $?
+}

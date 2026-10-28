@@ -1,0 +1,44 @@
+// SPDX-License-Identifier: GPL-2.0-only
+
+/ {
+	battery: battery {
+		compatible = "simple-battery";
+		voltage-min-design-microvolt = <3400000>;
+		voltage-max-design-microvolt = <4200000>;
+		energy-full-design-microwatt-hours = <7770000>;
+		charge-full-design-microamp-hours = <2100000>;
+
+		ocv-capacity-celsius = <25>;
+		ocv-capacity-table-0 = <4189000 100>, <4073000 95>,
+			<4044000 90>, <4039000 85>, <4032000 80>, <4025000 75>,
+			<4008000 70>, <3974000 65>, <3953000 60>, <3912000 55>,
+			<3884000 50>, <3858000 45>, <3849000 40>, <3839000 35>,
+			<3816000 30>, <3774000 25>, <3690000 20>, <3647000 16>,
+			<3611000 13>, <3539000 11>, <3477000 10>, <3421000 9>,
+			<3388000 8>, <3364000 7>, <3328000 6>, <3235000 5>,
+			<3174000 4>, <3096000 3>, <3062000 2>, <3035000 1>,
+			<3000000 0>;
+	};
+};
+
+&pm8916_usbin {
+	interrupts = <0x0 0x13 3 IRQ_TYPE_EDGE_BOTH>;
+	interrupt-names = "usb_vbus";
+};
+
+
+&pm8916_bms {
+	monitored-battery = <&battery>;
+	power-supplies = <&pm8916_charger>;
+
+	status = "okay";
+};
+
+&pm8916_charger {
+	qcom,vdd-safe = <4200000>;
+	qcom,ibat-safe = <500000>;
+
+	monitored-battery = <&battery>;
+
+	status = "okay";
+};
