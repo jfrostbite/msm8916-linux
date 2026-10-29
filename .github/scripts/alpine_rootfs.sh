@@ -125,7 +125,7 @@ apk add --no-cache \
     wpa_supplicant \
     e2fsprogs-extra \
     tzdata \
-    openssh-sftp-server \
+    wireless-regdb \
     zram-init \
     iw \
     shadow
@@ -231,6 +231,14 @@ echo 'ttyMSM0::respawn:/bin/busybox getty -L -n -l /root/login.sh ttyMSM0 115200
 
 # setup zram
 sed -i "s/num_devices=[0-9]*/num_devices=1/" ${CHROOT}/etc/conf.d/zram-init
+# zram-init is the only zram manager: postmarketos-zram-swap needs /etc/deviceinfo,
+# which this rootfs does not ship, and it would fight zram-init over zram0.
+# zram-init's "need ... swap" pulls in that provider, so drop the requirement.
+# postmarketos-base-openrc requires postmarketos-zram-openrc, so the package must stay.
+# Remove the service from every runlevel and delete its init script instead.
+chroot ${CHROOT} ash -l -c "rc-update del postmarketos-zram-swap 2>/dev/null; true"
+rm -f ${CHROOT}/etc/init.d/postmarketos-zram-swap
+sed -i 's/need localmount swap/need localmount/' ${CHROOT}/etc/init.d/zram-init
 
 # setup NetworkManager
 # log which conf file the networkmanager package actually shipped
