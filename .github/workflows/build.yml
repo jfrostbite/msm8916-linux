@@ -20,6 +20,10 @@ on:
           - uz801
           - uz801-memory-exp
         default: sp970
+      build_rootfs:
+        description: 'Build the Alpine rootfs image (and the release that goes with it)'
+        type: boolean
+        default: true
 
 # cancel superseded runs for the same branch or tag
 concurrency:
@@ -122,6 +126,7 @@ jobs:
           sudo ./build_boot_img.sh "$DEVICE"
 
       - name: Build rootfs
+        if: ${{ inputs.build_rootfs != false }}
         run: |
           cd .github/scripts
           chmod +x alpine_rootfs.sh
@@ -137,6 +142,7 @@ jobs:
           
       - name: Generate release tag
         id: version
+        if: ${{ inputs.build_rootfs != false }}
         run: |
           ALPINE_VER=$(cat ./alpine_version)
           NAME="Alpine ${ALPINE_VER} (${DEVICE})"
@@ -148,6 +154,7 @@ jobs:
           echo "TAG_NAME=$TAG_NAME" >> $GITHUB_OUTPUT
 
       - name: Releases
+        if: ${{ inputs.build_rootfs != false }}
         uses: softprops/action-gh-release@v2
         with:
           name: ${{ steps.version.outputs.NAME }}
