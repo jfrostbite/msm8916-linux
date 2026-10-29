@@ -286,6 +286,9 @@ echo "/dev/disk/by-partlabel/boot\t/boot\text2\tdefaults\t0 2" > ${CHROOT}/etc/f
 rm -f ${TMPDIR}/rootfs.img ${TMPDIR}/boot.img
 mkdir -p files ${TMPDIR}/mnt
 
+# export the Alpine version for the release step (replaces debian_version)
+cp ${CHROOT}/etc/alpine-release ../../alpine_version
+
 # create boot
 BOOT_SIZE=$(du -sb ${CHROOT}/boot | cut -f1)
 BOOT_SIZE=$((BOOT_SIZE + 1048576))

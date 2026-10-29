@@ -53,9 +53,11 @@ jobs:
             ccache-kernel-
 
       - name: Build
-        env:
-          CCACHE_MAXSIZE: 2G
         run: |
+          # ccache 4.x falls back to ~/.cache/ccache unless CCACHE_DIR is set;
+          # pin it to ~/.ccache, the path saved by actions/cache above
+          export CCACHE_DIR="$HOME/.ccache"
+          export CCACHE_MAXSIZE=2G
           export CROSS_COMPILE=aarch64-linux-gnu-
           export ARCH=arm64
           make CC="ccache aarch64-linux-gnu-gcc" HOSTCC="ccache gcc" ufi_defconfig
@@ -136,8 +138,9 @@ jobs:
       - name: Generate release tag
         id: version
         run: |
-          NAME=$(echo "Debian $(cat ./debian_version)")
-          TAG_NAME=$(cat ./debian_version)-$(date +%s)
+          ALPINE_VER=$(cat ./alpine_version)
+          NAME="Alpine ${ALPINE_VER} (${DEVICE})"
+          TAG_NAME="alpine-${ALPINE_VER}-${DEVICE}-$(date +%s)"
           git tag $TAG_NAME
           git push origin $TAG_NAME
           echo -e "- Bootloader: lk2nd:version:18.1-next-5a72bd3b-20240920-dirty\n\n$(git log -1 --format=%B)" > release_notes.md
