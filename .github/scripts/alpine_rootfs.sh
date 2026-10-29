@@ -105,7 +105,6 @@ apk add --no-cache --allow-untrusted postmarketos-keys
 apk add --no-cache \
     bridge-utils \
     chrony \
-    dropbear \
     eudev \
     iptables \
     modemmanager \
@@ -170,7 +169,6 @@ rc-update add iptables boot
 rc-update add mount-ro shutdown
 rc-update add killprocs shutdown
 rc-update add savecache shutdown
-rc-update add dropbear default
 rc-update add rmtfs default
 rc-update add local default
 rc-update add modemmanager default
@@ -239,6 +237,10 @@ sed -i "s/num_devices=[0-9]*/num_devices=1/" ${CHROOT}/etc/conf.d/zram-init
 chroot ${CHROOT} ash -l -c "rc-update del postmarketos-zram-swap 2>/dev/null; true"
 rm -f ${CHROOT}/etc/init.d/postmarketos-zram-swap
 sed -i 's/need localmount swap/need localmount/' ${CHROOT}/etc/init.d/zram-init
+
+# allow root password login over SSH (openssh defaults to prohibit-password)
+sed -i 's/^#*PermitRootLogin.*/PermitRootLogin yes/' ${CHROOT}/etc/ssh/sshd_config
+grep -q '^PermitRootLogin' ${CHROOT}/etc/ssh/sshd_config || echo 'PermitRootLogin yes' >> ${CHROOT}/etc/ssh/sshd_config
 
 # setup NetworkManager
 # log which conf file the networkmanager package actually shipped
