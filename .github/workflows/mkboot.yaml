@@ -1,50 +1,110 @@
-name: make boot
-on: [workflow_dispatch]
+name: Make boot images
+
+# Standalone boot image / rootfs pipeline. It reuses the kernel artifact
+# produced by the "Build kernel deb packages" workflow (build.yml), so you
+# pass that run's id instead of rebuilding the kernel here.
+on:
+  workflow_dispatch:
+    inputs:
+      device:
+        description: 'Device model for the boot image and rootfs'
+        type: choice
+        options:
+          - mf32t
+          - mfx32
+          - mfx32-boiler
+          - sp970
+          - sp970-memory-exp
+          - ufi003
+          - ufi003-memory-exp
+          - uz801
+          - uz801-memory-exp
+        default: sp970
+      run_id:
+        description: 'Run id of the build.yml run that produced the "kernel" artifact'
+        type: string
+        required: true
+
+# cancel superseded runs for the same device
+concurrency:
+  group: ${{ github.workflow }}-${{ inputs.device }}
+  cancel-in-progress: true
+
+permissions:
+  contents: write   # push the release tag
+  actions: read     # download the kernel artifact from another run
+
 jobs:
   bootimg:
-    name: Make boot images
-    runs-on: ubuntu-22.04
+    name: Make boot images (${{ inputs.device }})
+    runs-on: ubuntu-24.04-arm
     steps:
       - name: Prepare
         run: |
           sudo apt -y update
-          sudo apt -y install binfmt-support qemu-user-static mkbootimg  debootstrap android-sdk-libsparse-utils
-          
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Download kernel
-        run: |
+          sudo apt -y install android-sdk-libsparse-utils rsync kmod
+          # Ubuntu's mkbootimg package is missing the gki module, use the AOSP source instead
+          sudo git clone --depth 1 https://android.googlesource.com/platform/system/tools/mkbootimg /opt/mkbootimg
+          sudo ln -sf /opt/mkbootimg/mkbootimg.py /usr/local/bin/mkbootimg
           mkdir artifacts
 
-      - name: Build Kernel
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Download kernel
+        uses: actions/download-artifact@v4
+        with:
+          name: kernel
+          path: artifacts
+          run-id: ${{ inputs.run_id }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Select device
+        env:
+          DEVICE: ${{ inputs.device }}
+        run: |
+          dtb="artifacts/msm8916-ufi-${DEVICE}.dtb"
+          if [ ! -f "$dtb" ]; then
+            echo "::error::$dtb not found in the kernel artifact"
+            echo "Available devices:"
+            ls artifacts/msm8916-ufi-*.dtb | sed -e 's#^artifacts/msm8916-ufi-##' -e 's#\.dtb$##'
+            exit 1
+          fi
+          echo "DEVICE=$DEVICE" >> "$GITHUB_ENV"
+
+      - name: Build boot image
         run: |
           cd .github/scripts
           chmod +x build_boot_img.sh
-          sudo ./build_boot_img.sh
+          sudo ./build_boot_img.sh "$DEVICE"
 
       - name: Build rootfs
         run: |
           cd .github/scripts
-          chmod +x build_rootfs.sh
-          sudo ./build_rootfs.sh
+          chmod +x alpine_rootfs.sh
+          sudo ./alpine_rootfs.sh "$DEVICE"
+          sudo cp files/rootfs.bin "../../artifacts/alpine-rootfs-${DEVICE}.bin"
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: kernel and boot images
+          name: boot images and rootfs (${{ inputs.device }})
           path: artifacts/*
+          compression-level: 0
 
       - name: Generate release tag
         id: version
         run: |
-          NAME=$(echo "Debian $(cat ./debian_version)")
-          TAG_NAME=$(cat ./debian_version)-${{ github.run_number }}
-          git tag $TAG_NAME
-          git push origin $TAG_NAME
-          echo -e "- Bootloader: lk2nd:version:18.1-next-5a72bd3b-20240920-dirty\n\n$(git log -1 --format=%B)" > release_notes.md
-          echo "NAME=$NAME" >> $GITHUB_OUTPUT
-          echo "TAG_NAME=$TAG_NAME" >> $GITHUB_OUTPUT
+          ALPINE_VER=$(cat ./alpine_version)
+          NAME="Alpine ${ALPINE_VER} (${DEVICE})"
+          TAG_NAME="alpine-${ALPINE_VER}-${DEVICE}-$(date +%s)"
+          git tag "$TAG_NAME"
+          git push origin "$TAG_NAME"
+          echo -e "- Bootloader: lk2nd:version:18.1-next-5a72bd3b-20240920-dirty\n\n- Kernel run: ${{ inputs.run_id }}\n\n$(git log -1 --format=%B)" > release_notes.md
+          echo "NAME=$NAME" >> "$GITHUB_OUTPUT"
+          echo "TAG_NAME=$TAG_NAME" >> "$GITHUB_OUTPUT"
 
       - name: Releases
         uses: softprops/action-gh-release@v2
