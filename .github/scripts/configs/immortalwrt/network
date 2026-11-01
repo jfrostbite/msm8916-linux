@@ -1,0 +1,28 @@
+
+config interface 'loopback'
+	option device 'lo'
+	option proto 'static'
+	option ipaddr '127.0.0.1'
+	option netmask '255.0.0.0'
+
+config globals 'globals'
+	option ula_prefix 'fdca:1234:5678::/48'
+
+# LAN exposed to the host PC over the USB RNDIS gadget (usb0).
+# Matches the Alpine setup: 192.168.100.1/24 with DHCP for the host.
+config interface 'lan'
+	option proto 'static'
+	option device 'usb0'
+	option ipaddr '192.168.100.1'
+	option netmask '255.255.255.0'
+	option ip6assign '60'
+
+# WAN over Wi-Fi: the radio joins an upstream AP as a DHCP client. The actual
+# SSID/key live in /etc/config/wireless (wifinet 'wwan'). No cellular modem is
+# configured here.
+config interface 'wwan'
+	option proto 'dhcp'
+
+config interface 'wwan6'
+	option proto 'dhcpv6'
+	option device '@wwan'

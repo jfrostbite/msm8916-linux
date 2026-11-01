@@ -1,0 +1,44 @@
+#!/bin/sh
+# hotplug.d/usb-gadget/10-usb-gadget
+# Bring up the RNDIS (+ADB) USB gadget when the UDC appears, so the device
+# exposes usb0 to the host PC. This replaces the Alpine OpenRC 'usb_gadget'
+# service: it builds the gadget tree (usb_gadget_setup.sh), starts adbd, then
+# binds the gadget to the first available UDC.
+
+[ "$ACTION" = "add" ] || exit 0
+
+modprobe libcomposite 2>/dev/null
+
+GADGET=/sys/kernel/config/usb_gadget/g1
+
+# already bound? nothing to do
+if [ -e "$GADGET/UDC" ] && grep -q '.' "$GADGET/UDC" 2>/dev/null; then
+	exit 0
+fi
+
+# build the gadget tree once
+if [ ! -d "$GADGET" ]; then
+	/usr/local/bin/usb_gadget_setup.sh
+fi
+
+# start adbd if present (ffs.adb needs it before binding)
+if [ -x /usr/local/bin/adbd ] && ! pgrep adbd >/dev/null 2>&1; then
+	/usr/local/bin/adbd &
+	i=0
+	while [ $i -lt 10 ]; do
+		pgrep adbd >/dev/null 2>&1 && break
+		sleep 1
+		i=$((i + 1))
+	done
+fi
+
+# bind to the first UDC
+UDC=$(ls -1 /sys/class/udc 2>/dev/null | head -n1)
+[ -n "$UDC" ] || exit 0
+i=0
+while [ $i -lt 10 ]; do
+	echo "$UDC" > "$GADGET/UDC" 2>/dev/null
+	grep -q '.' "$GADGET/UDC" 2>/dev/null && break
+	sleep 1
+	i=$((i + 1))
+done

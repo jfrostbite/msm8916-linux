@@ -1,0 +1,22 @@
+
+# Wi-Fi for MSM8916 (wcn36xx). The radio comes up as 'radio0'. This template
+# joins an upstream AP as a station (the WAN uplink, interface 'wwan').
+#
+# EDIT BEFORE USE: set ssid/key to your upstream network, then flip
+# 'option disabled' to '0'. Left disabled by default so a device with no
+# credentials still boots cleanly (reachable over the usb0 LAN / serial).
+
+config wifi-device 'radio0'
+	option type 'mac80211'
+	option channel 'auto'
+	option band '2g'
+	option disabled '1'
+
+config wifi-iface 'wwan'
+	option device 'radio0'
+	option mode 'sta'
+	option network 'wwan'
+	option ssid 'UPSTREAM_SSID'
+	option encryption 'psk2'
+	option key 'UPSTREAM_PASSWORD'
+	option disabled '1'

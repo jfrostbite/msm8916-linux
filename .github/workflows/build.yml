@@ -20,10 +20,14 @@ on:
           - uz801
           - uz801-memory-exp
         default: sp970
-      build_rootfs:
-        description: 'Build the Alpine rootfs image (and the release that goes with it)'
-        type: boolean
-        default: true
+      rootfs_type:
+        description: 'Which rootfs to build (and release). Pick none to build only the boot image.'
+        type: choice
+        options:
+          - alpine
+          - immortalwrt
+          - none
+        default: alpine
 
 # cancel superseded runs for the same branch or tag
 concurrency:
@@ -85,6 +89,8 @@ jobs:
     name: Make boot images (${{ inputs.device || 'sp970' }})
     needs: build
     runs-on: ubuntu-24.04-arm
+    env:
+      ROOTFS_TYPE: ${{ inputs.rootfs_type || 'alpine' }}
     steps:
       - name: Prepare
         run: |
@@ -125,8 +131,8 @@ jobs:
           chmod +x build_boot_img.sh
           sudo ./build_boot_img.sh "$DEVICE"
 
-      - name: Build rootfs
-        if: ${{ inputs.build_rootfs != false }}
+      - name: Build Alpine rootfs
+        if: ${{ env.ROOTFS_TYPE == 'alpine' }}
         run: |
           cd .github/scripts
           chmod +x alpine_rootfs.sh
@@ -139,22 +145,105 @@ jobs:
           name: kernel and boot images
           path: artifacts/*
           compression-level: 0
-          
+
       - name: Generate release tag
         id: version
-        if: ${{ inputs.build_rootfs != false }}
+        if: ${{ env.ROOTFS_TYPE == 'alpine' }}
         run: |
-          ALPINE_VER=$(cat ./alpine_version)
-          NAME="Alpine ${ALPINE_VER} (${DEVICE})"
-          TAG_NAME="alpine-${ALPINE_VER}-${DEVICE}-$(date +%s)"
-          git tag $TAG_NAME
-          git push origin $TAG_NAME
+          VER=$(cat ./alpine_version)
+          NAME="Alpine ${VER} (${DEVICE})"
+          TAG_NAME="alpine-${VER}-${DEVICE}-$(date +%s)"
+          git tag "$TAG_NAME"
+          git push origin "$TAG_NAME"
           echo -e "- Bootloader: lk2nd:version:18.1-next-5a72bd3b-20240920-dirty\n\n$(git log -1 --format=%B)" > release_notes.md
-          echo "NAME=$NAME" >> $GITHUB_OUTPUT
-          echo "TAG_NAME=$TAG_NAME" >> $GITHUB_OUTPUT
+          echo "NAME=$NAME" >> "$GITHUB_OUTPUT"
+          echo "TAG_NAME=$TAG_NAME" >> "$GITHUB_OUTPUT"
 
       - name: Releases
-        if: ${{ inputs.build_rootfs != false }}
+        if: ${{ env.ROOTFS_TYPE == 'alpine' }}
+        uses: softprops/action-gh-release@v2
+        with:
+          name: ${{ steps.version.outputs.NAME }}
+          body_path: release_notes.md
+          tag_name: ${{ steps.version.outputs.TAG_NAME }}
+          files: |
+            artifacts/*
+
+  # ImmortalWrt uses the official ImageBuilder, whose host tools are published
+  # only for Linux x86_64. It therefore runs on an x86_64 runner (not the arm64
+  # one used above), reusing the cross-built kernel artifact and the boot.img
+  # produced by the bootimg job.
+  immortalwrt:
+    name: Make ImmortalWrt rootfs (${{ inputs.device || 'sp970' }})
+    needs: [build, bootimg]
+    if: ${{ inputs.rootfs_type == 'immortalwrt' }}
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: write
+    env:
+      DEVICE: ${{ inputs.device || 'sp970' }}
+    steps:
+      - name: Prepare
+        run: |
+          sudo apt -y update
+          sudo apt -y install android-sdk-libsparse-utils rsync kmod zstd \
+            build-essential libncurses-dev zlib1g-dev gawk gettext \
+            libssl-dev xsltproc wget unzip python3 file
+          mkdir artifacts
+
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Download kernel
+        uses: actions/download-artifact@v4
+        with:
+          name: kernel
+          path: artifacts
+
+      - name: Download boot images
+        uses: actions/download-artifact@v4
+        with:
+          name: kernel and boot images
+          path: artifacts
+
+      - name: Select device
+        run: |
+          dtb="artifacts/msm8916-ufi-${DEVICE}.dtb"
+          if [ ! -f "$dtb" ]; then
+            echo "::error::$dtb not found in the kernel artifact"
+            exit 1
+          fi
+
+      - name: Build ImmortalWrt rootfs
+        run: |
+          cd .github/scripts
+          chmod +x immortalwrt_rootfs.sh
+          sudo ./immortalwrt_rootfs.sh "$DEVICE"
+          sudo cp files/rootfs.bin "../../artifacts/immortalwrt-rootfs-${DEVICE}.bin"
+          sudo cp files/boot.bin "../../artifacts/immortalwrt-boot-${DEVICE}.bin"
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: immortalwrt rootfs (${{ inputs.device || 'sp970' }})
+          path: artifacts/*
+          compression-level: 0
+
+      - name: Generate release tag
+        id: version
+        run: |
+          VER=$(cat ./immortalwrt_version)
+          NAME="ImmortalWrt ${VER} (${DEVICE})"
+          TAG_NAME="immortalwrt-${VER}-${DEVICE}-$(date +%s)"
+          git tag "$TAG_NAME"
+          git push origin "$TAG_NAME"
+          echo -e "- Bootloader: lk2nd:version:18.1-next-5a72bd3b-20240920-dirty\n\n$(git log -1 --format=%B)" > release_notes.md
+          echo "NAME=$NAME" >> "$GITHUB_OUTPUT"
+          echo "TAG_NAME=$TAG_NAME" >> "$GITHUB_OUTPUT"
+
+      - name: Releases
         uses: softprops/action-gh-release@v2
         with:
           name: ${{ steps.version.outputs.NAME }}
