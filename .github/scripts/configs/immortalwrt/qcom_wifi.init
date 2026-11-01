@@ -1,0 +1,27 @@
+#!/bin/sh /etc/rc.common
+# Load the Qualcomm WCNSS Wi-Fi module stack at boot.
+#
+# Alpine gets these modules loaded by udev (modalias autoload). ImmortalWrt
+# has no udev, and its kmodloader could not resolve these module names, so this
+# script inserts them explicitly, in dependency order, by full path. The
+# remoteproc (wcnss) starts as soon as qcom_wcnss_pil probes; wcn36xx then
+# attaches through wcnss_ctrl. Runs before netifd so the wifi PHY exists when
+# the 'wireless' config is applied.
+
+START=19
+
+start() {
+	MODDIR=/lib/modules/$(uname -r)
+
+	for m in qcom-scm mdt_loader qcom_pil_info qcom_common qcom_wcnss_pil wcnss_ctrl wcn36xx; do
+		# sysfs uses underscores in module names
+		name=$(echo "$m" | tr '-' '_')
+		[ -d "/sys/module/$name" ] && continue
+
+		f=$(find "$MODDIR" -name "$m.ko" | head -n1)
+		# not found as a .ko means it is built into the kernel
+		[ -n "$f" ] || continue
+
+		insmod "$f" || logger -t qcom_wifi "insmod $m failed"
+	done
+}

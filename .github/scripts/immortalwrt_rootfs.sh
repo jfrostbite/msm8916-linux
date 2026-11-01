@@ -11,10 +11,10 @@
 #
 # The rootfs is produced with the official ImmortalWrt ImageBuilder for the
 # generic aarch64 target (armsr/armv8). ImageBuilder lets us bake in the
-# packages we need (modemmanager, USB gadget tools, luci, ...) and a FILES
-# overlay (our UCI config + gadget scripts) fully offline. We then graft this
-# tree's out-of-tree kernel modules onto the result, since ImageBuilder only
-# knows ImmortalWrt's own kernel.
+# packages we need (luci, wpad, usbutils, ...) and a FILES overlay (our UCI
+# config + gadget/firmware helpers) fully offline. We then graft this tree's
+# out-of-tree kernel modules onto the result, since ImageBuilder only knows
+# ImmortalWrt's own kernel.
 #
 # NOTE: run on Linux x86_64 (CI runner / container / VM). ImageBuilder ships
 #       x86_64 host binaries and does not run on macOS or arm64 hosts.
@@ -26,9 +26,10 @@ else
     NAME="$1"
 fi
 
-# ImmortalWrt target. Override IMMORTALWRT_VERSION to pin a release, e.g.
-# IMMORTALWRT_VERSION=24.10.0 instead of the rolling snapshots.
-IMMORTALWRT_VERSION="${IMMORTALWRT_VERSION:-snapshots}"
+# ImmortalWrt release. Defaults to 25.12.2 (latest stable with apk, matching
+# the apk-based snapshot we tested). Set IMMORTALWRT_VERSION=snapshots to use
+# the rolling snapshot instead.
+IMMORTALWRT_VERSION="${IMMORTALWRT_VERSION:-25.12.2}"
 if [ "$IMMORTALWRT_VERSION" = "snapshots" ]; then
     IMMORTALWRT_BASE="https://downloads.immortalwrt.org/snapshots/targets/armsr/armv8"
 else
@@ -94,8 +95,10 @@ fi
 # ---------------------------------------------------------------------------
 
 echo "Resolving ImageBuilder from ${IMMORTALWRT_BASE}"
+# Release names include the version (immortalwrt-imagebuilder-25.12.2-armsr-armv8...),
+# snapshot names do not, so match both forms.
 IB_NAME=$(curl -fsSL "${IMMORTALWRT_BASE}/sha256sums" \
-    | grep -oE 'immortalwrt-imagebuilder-armsr-armv8\.Linux-x86_64\.tar\.(zst|xz)' \
+    | grep -oE 'immortalwrt-imagebuilder-[^ ]*armsr-armv8\.Linux-x86_64\.tar\.(zst|xz)' \
     | head -n1)
 if [ -z "${IB_NAME}" ]; then
     echo "Could not find ImageBuilder in ${IMMORTALWRT_BASE}/sha256sums"
@@ -120,8 +123,8 @@ rm -f "${TMPDIR}/${IB_NAME}"
 #
 # Network (UCI): the device exposes a USB RNDIS gadget (usb0) to the host PC as
 # LAN 192.168.100.1/24 with DHCP, and the uplink (WAN) is Wi-Fi (radio0 joins
-# an upstream AP as a station). No cellular modem is configured. Set the Wi-Fi
-# SSID/key in configs/immortalwrt/wireless before use.
+# an upstream AP as a station). No cellular modem is configured. The Wi-Fi
+# wireless config stays disabled until SSID/key are set.
 # ---------------------------------------------------------------------------
 
 rm -rf "${FILES_OVERLAY}"
@@ -157,13 +160,27 @@ exit 0
 EOF
 chmod +x "${FILES_OVERLAY}/etc/uci-defaults/98-enable-usb-gadget"
 
+# Qualcomm WCNSS (Wi-Fi) module stack. Alpine gets these loaded by udev
+# (modalias autoload). ImmortalWrt has no udev, so this init script inserts
+# the modules explicitly, in dependency order, by full path.
+cp configs/immortalwrt/qcom_wifi.init "${FILES_OVERLAY}/etc/init.d/qcom_wifi"
+chmod +x "${FILES_OVERLAY}/etc/init.d/qcom_wifi"
+
+cat > "${FILES_OVERLAY}/etc/uci-defaults/97-enable-qcom-wifi" <<'EOF'
+#!/bin/sh
+/etc/init.d/qcom_wifi enable
+exit 0
+EOF
+chmod +x "${FILES_OVERLAY}/etc/uci-defaults/97-enable-qcom-wifi"
+
 # Wi-Fi / modem firmware: wcn36xx (and modem/venus) firmware is NOT shipped in
 # the rootfs; it lives on the device's own flash partitions. Reuse the same
 # msm-firmware-loader this tree uses for Alpine/Debian: it mounts apnhlos/
 # modem/persist/bluetooth, symlinks the blobs (incl. WCNSS_qcom_wlan_nv.bin and
 # wcnss.mbn) into /lib/firmware/msm-firmware-loader/target and points
 # firmware_class at it. Run it from an OpenWrt preinit hook so the firmware
-# path is ready before wcn36xx probes.
+# path is ready before wcn36xx probes. Its BASEDIR must already exist (it is
+# created below, after the rootfs is extracted).
 mkdir -p "${FILES_OVERLAY}/usr/sbin"
 cp firmware/msm-firmware-loader.sh \
     "${FILES_OVERLAY}/usr/sbin/msm-firmware-loader.sh"
@@ -182,7 +199,6 @@ EOF
 chmod +x "${FILES_OVERLAY}/lib/preinit/81_load_msm_firmware"
 
 # Serial console: pin a getty on ttyMSM0 (the boot cmdline console).
-mkdir -p "${FILES_OVERLAY}/etc/uci-defaults"
 cat > "${FILES_OVERLAY}/etc/uci-defaults/99-ttymsm0-console" <<'EOF'
 #!/bin/sh
 grep -q 'ttyMSM0' /etc/inittab 2>/dev/null || \
@@ -194,7 +210,6 @@ chmod +x "${FILES_OVERLAY}/etc/uci-defaults/99-ttymsm0-console"
 # Grow the ext4 rootfs to fill the whole 'system' partition on first boot,
 # the same thing alpine-startup.sh does with resize2fs. Runs once (uci-defaults
 # scripts are removed after they succeed). resize2fs comes from e2fsprogs.
-mkdir -p "${FILES_OVERLAY}/etc/uci-defaults"
 cat > "${FILES_OVERLAY}/etc/uci-defaults/99-resize-rootfs" <<'EOF'
 #!/bin/sh
 dev=/dev/disk/by-partlabel/system
@@ -204,12 +219,9 @@ exit 0
 EOF
 chmod +x "${FILES_OVERLAY}/etc/uci-defaults/99-resize-rootfs"
 
-# Root filesystem is a plain ext4 partition mounted by the boot cmdline
-# (root=PARTLABEL=system), with a separate ext2 boot partition.
-cat > "${FILES_OVERLAY}/etc/fstab" <<'EOF'
-# rootfs is the ext4 system partition; boot is a separate ext2 partition
-/dev/disk/by-partlabel/boot	/boot	ext2	defaults	0 2
-EOF
+# No custom /etc/fstab: the rootfs is mounted by the boot cmdline
+# (root=PARTLABEL=system). The image has no udev, so /dev/disk/by-partlabel
+# does not exist and a 'boot' fstab entry would fail at startup.
 
 # ---------------------------------------------------------------------------
 # Run ImageBuilder to produce the rootfs tarball
@@ -261,6 +273,9 @@ cp -a "${MODS_TMP}/lib/modules" "${CHROOT}/lib/"
 [ -d "${MODS_TMP}/lib/firmware" ] && cp -a "${MODS_TMP}/lib/firmware" "${CHROOT}/lib/"
 rm -rf "${MODS_TMP}"
 depmod -b "${CHROOT}" "$(ls ${CHROOT}/lib/modules)"
+
+# msm-firmware-loader mounts tmpfs on this directory; it must exist first.
+mkdir -p "${CHROOT}/lib/firmware/msm-firmware-loader"
 
 # ---------------------------------------------------------------------------
 # extlinux + boot partition contents (same layout as alpine_rootfs.sh so the
