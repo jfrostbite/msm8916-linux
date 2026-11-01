@@ -1,0 +1,66 @@
+#!/bin/sh /etc/rc.common
+# procd init script: bring up the RNDIS (+ADB) USB gadget at boot.
+# Replaces the Alpine OpenRC 'usb_gadget' service. OpenWrt's hotplug.d does not
+# dispatch 'udc' events, so we start the gadget explicitly from init instead of
+# relying on a hotplug trigger.
+
+START=99
+STOP=10
+
+USE_PROCD=1
+
+GADGET=/sys/kernel/config/usb_gadget/g1
+
+start_service() {
+	# configfs + libcomposite must be present before building the gadget
+	modprobe libcomposite 2>/dev/null
+	mount -t configfs none /sys/kernel/config 2>/dev/null
+
+	# build the gadget tree (RNDIS + ffs.adb, mounts functionfs) once
+	if [ ! -d "$GADGET" ]; then
+		/usr/local/bin/usb_gadget_setup.sh
+	fi
+
+	# adbd must be running (and have populated the ffs endpoints) before the
+	# gadget is bound to the UDC, otherwise binding fails on ffs.adb.
+	if [ -x /usr/local/bin/adbd ] && ! pgrep adbd >/dev/null 2>&1; then
+		/usr/local/bin/adbd &
+		i=0
+		while [ $i -lt 10 ]; do
+			pgrep adbd >/dev/null 2>&1 && break
+			sleep 1
+			i=$((i + 1))
+		done
+	fi
+
+	# wait for a UDC to appear, then bind
+	i=0
+	while [ $i -lt 20 ]; do
+		UDC=$(ls -1 /sys/class/udc 2>/dev/null | head -n1)
+		[ -n "$UDC" ] && break
+		sleep 1
+		i=$((i + 1))
+	done
+	[ -n "$UDC" ] || return 1
+
+	i=0
+	while [ $i -lt 10 ]; do
+		echo "$UDC" > "$GADGET/UDC" 2>/dev/null
+		grep -q '.' "$GADGET/UDC" 2>/dev/null && break
+		sleep 1
+		i=$((i + 1))
+	done
+
+	# keep procd happy with a trivial supervised placeholder so the service
+	# stays "running" and start/stop work predictably
+	procd_open_instance
+	procd_set_param command /bin/sleep infinity
+	procd_set_param respawn
+	procd_close_instance
+}
+
+stop_service() {
+	if [ -e "$GADGET/UDC" ] && grep -q '.' "$GADGET/UDC" 2>/dev/null; then
+		echo "" > "$GADGET/UDC"
+	fi
+}

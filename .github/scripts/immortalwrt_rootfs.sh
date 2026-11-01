@@ -140,11 +140,22 @@ if [ -f configs/adbd ]; then
     chmod +x "${FILES_OVERLAY}/usr/local/bin/adbd"
 fi
 
-# hotplug trigger that builds + binds the gadget when the UDC appears
-mkdir -p "${FILES_OVERLAY}/etc/hotplug.d/usb-gadget"
-cp configs/immortalwrt/usb-gadget.hotplug \
-    "${FILES_OVERLAY}/etc/hotplug.d/usb-gadget/10-usb-gadget"
-chmod +x "${FILES_OVERLAY}/etc/hotplug.d/usb-gadget/10-usb-gadget"
+# USB gadget brought up by a procd init script at boot. OpenWrt's hotplug.d
+# does not dispatch 'udc' events, so we start the gadget explicitly from init
+# (builds the gadget tree, starts adbd, binds the UDC) rather than via hotplug.
+mkdir -p "${FILES_OVERLAY}/etc/init.d"
+cp configs/immortalwrt/usb_gadget.init \
+    "${FILES_OVERLAY}/etc/init.d/usb_gadget"
+chmod +x "${FILES_OVERLAY}/etc/init.d/usb_gadget"
+
+# enable the service at first boot
+mkdir -p "${FILES_OVERLAY}/etc/uci-defaults"
+cat > "${FILES_OVERLAY}/etc/uci-defaults/98-enable-usb-gadget" <<'EOF'
+#!/bin/sh
+/etc/init.d/usb_gadget enable
+exit 0
+EOF
+chmod +x "${FILES_OVERLAY}/etc/uci-defaults/98-enable-usb-gadget"
 
 # Wi-Fi / modem firmware: wcn36xx (and modem/venus) firmware is NOT shipped in
 # the rootfs; it lives on the device's own flash partitions. Reuse the same
