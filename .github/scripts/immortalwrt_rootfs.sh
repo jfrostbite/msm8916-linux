@@ -180,6 +180,19 @@ exit 0
 EOF
 chmod +x "${FILES_OVERLAY}/etc/uci-defaults/99-ttymsm0-console"
 
+# Grow the ext4 rootfs to fill the whole 'system' partition on first boot,
+# the same thing alpine-startup.sh does with resize2fs. Runs once (uci-defaults
+# scripts are removed after they succeed). resize2fs comes from e2fsprogs.
+mkdir -p "${FILES_OVERLAY}/etc/uci-defaults"
+cat > "${FILES_OVERLAY}/etc/uci-defaults/99-resize-rootfs" <<'EOF'
+#!/bin/sh
+dev=/dev/disk/by-partlabel/system
+[ -e "$dev" ] || dev=$(findmnt -no SOURCE / 2>/dev/null)
+[ -n "$dev" ] && [ -e "$dev" ] && resize2fs "$dev"
+exit 0
+EOF
+chmod +x "${FILES_OVERLAY}/etc/uci-defaults/99-resize-rootfs"
+
 # Root filesystem is a plain ext4 partition mounted by the boot cmdline
 # (root=PARTLABEL=system), with a separate ext2 boot partition.
 cat > "${FILES_OVERLAY}/etc/fstab" <<'EOF'

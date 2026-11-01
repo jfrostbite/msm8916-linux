@@ -188,7 +188,7 @@ jobs:
           sudo apt -y update
           sudo apt -y install android-sdk-libsparse-utils rsync kmod zstd \
             build-essential libncurses-dev zlib1g-dev gawk gettext \
-            libssl-dev xsltproc wget unzip python3 file
+            libssl-dev xsltproc wget unzip python3 file qemu-utils
           mkdir artifacts
 
       - name: Checkout
