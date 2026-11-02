@@ -50,7 +50,7 @@ PROFILE="${PROFILE:-generic}"
 PACKAGES="${PACKAGES:-\
 luci luci-ssl \
 usbutils \
-wpad-openssl iw wireless-regdb \
+wpad-mesh-openssl hostapd-common iw wireless-regdb \
 e2fsprogs resize2fs \
 adb \
 -dnsmasq dnsmasq-full \

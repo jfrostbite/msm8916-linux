@@ -31,6 +31,9 @@ start_service() {
 			sleep 1
 			i=$((i + 1))
 		done
+		# adbd is a staticx wrapper: the real binary unpacks itself and only
+		# then writes the FunctionFS descriptors. Binding earlier fails with -19.
+		sleep 2
 	fi
 
 	# wait for a UDC to appear, then bind
@@ -44,7 +47,7 @@ start_service() {
 	[ -n "$UDC" ] || return 1
 
 	i=0
-	while [ $i -lt 10 ]; do
+	while [ $i -lt 20 ]; do
 		echo "$UDC" > "$GADGET/UDC" 2>/dev/null
 		grep -q '.' "$GADGET/UDC" 2>/dev/null && break
 		sleep 1
