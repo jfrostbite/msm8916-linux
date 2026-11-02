@@ -51,7 +51,7 @@ PACKAGES="${PACKAGES:-\
 luci luci-ssl \
 usbutils \
 wpad-openssl iw wireless-regdb \
-e2fsprogs \
+e2fsprogs resize2fs \
 adb \
 -dnsmasq dnsmasq-full \
 }"
@@ -212,9 +212,19 @@ chmod +x "${FILES_OVERLAY}/etc/uci-defaults/99-ttymsm0-console"
 # scripts are removed after they succeed). resize2fs comes from e2fsprogs.
 cat > "${FILES_OVERLAY}/etc/uci-defaults/99-resize-rootfs" <<'EOF'
 #!/bin/sh
+# /dev/disk/by-partlabel does not exist without udev, so fall back to the
+# device that is mounted on / (BusyBox has no findmnt).
 dev=/dev/disk/by-partlabel/system
-[ -e "$dev" ] || dev=$(findmnt -no SOURCE / 2>/dev/null)
-[ -n "$dev" ] && [ -e "$dev" ] && resize2fs "$dev"
+[ -e "$dev" ] || dev=$(awk '$2 == "/" { print $1; exit }' /proc/mounts)
+if [ -z "$dev" ] || [ ! -e "$dev" ]; then
+    logger -t resize-rootfs "root device not found, skipping resize"
+    exit 0
+fi
+if resize2fs "$dev"; then
+    logger -t resize-rootfs "resized $dev"
+else
+    logger -t resize-rootfs "resize2fs failed on $dev"
+fi
 exit 0
 EOF
 chmod +x "${FILES_OVERLAY}/etc/uci-defaults/99-resize-rootfs"
