@@ -48,7 +48,7 @@ PROFILE="${PROFILE:-generic}"
 # Defaults cover: web UI (luci), USB gadget userspace tools, wifi userspace
 # stack (wpad + hostapd/wpa_supplicant), ext4 tooling, adb.
 PACKAGES="${PACKAGES:-\
-luci luci-ssl \
+luci luci-ssl luci-theme-argon luci-app-openclash \
 usbutils \
 wpad-mesh-openssl hostapd-common iw wireless-regdb \
 e2fsprogs resize2fs \
